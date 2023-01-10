@@ -27,6 +27,7 @@ const userSchema = new mongoose.Schema({
     minLength: [8, "Password should be 8 characters or more"],
     select: false,
   },
+  isVerified: { type: Boolean, required: true, default: false },
   mobileNumber: { type: Number },
   originState: { type: String },
   localGovernment: { type: String },
