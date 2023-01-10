@@ -27,6 +27,11 @@ const userSchema = new mongoose.Schema({
     minLength: [8, "Password should be 8 characters or more"],
     select: false,
   },
+  mobileNumber: { type: Number },
+  originState: { type: String },
+  localGovernment: { type: String },
+  nextOfKin: { type: String },
+  nextOfKinPhoneNumber: { type: Number },
   lastLoggedIn: {
     type: Date,
   },
