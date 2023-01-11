@@ -148,3 +148,97 @@ exports.logoutUser = catchAsyncErrors(async (req, res, next) => {
   });
   res.status(200).json({ success: true });
 });
+
+exports.updateProfile = catchAsyncErrors(async (req, res, next) => {
+  const profileUpdate = {
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    mobileNumber: req.body.mobileNumber,
+    nextOfKin: req.body.nextOfKin,
+    nextOfKinPhoneNumber: req.body.nextOfKinPhoneNumber,
+  };
+
+  await User.findByIdAndUpdate(req.user.id, profileUpdate);
+  res.status(200).json({ success: true });
+});
+
+exports.updatePassword = catchAsyncErrors(async (req, res, next) => {
+  const user = await User.findById(req.user.id).select("+password");
+  const isPasswordMatched = await user.comparePassword(req.body.oldPassword);
+
+  if (!isPasswordMatched) {
+    return next(new ErrorHandler("Incorrect Old Password"));
+  }
+
+  if (req.body.newPassword != req.body.confirmPassword) {
+    return next(new ErrorHandler("Password does not match", 400));
+  }
+
+  user.password = req.body.newPassword;
+  await user.save();
+
+  res.status(200).json({ success: true });
+});
+
+exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
+  const { emailNumb } = req.body;
+
+  const user = await User.findOne({
+    $or: [{ email: emailNumb }, { mobileNumber: emailNumb }],
+  });
+
+  if (!user) {
+    return next(new ErrorHandler("User Not found", 400));
+  }
+
+  const resetToken = user.getResetPasswordToken();
+  user.save({ ValidateBeforeSave: false });
+
+  const resetPasswordUrl = `${req.protocol}://${req.get(
+    "host"
+  )}/api/v1/user/password/reset/${resetToken}`;
+
+  const message = `Your password reset Token is :-\n\n ${resetPasswordUrl} \n\nif you have not requested this email then, please Ignore it`;
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: `User Password Recovery`,
+      html:message,
+    }).then((r) => {
+      console.log("Reset token Sent");
+    });
+  } catch (error) {
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save({ validateBeforeSave: false });
+    return next(new ErrorHandler(error.message, 500));
+  }
+  res.status(200).json({ success: true });
+});
+
+exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
+  const resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+
+  const user = await User.findOne({
+    resetPasswordToken,
+    resetPasswordExpire: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    return next(new ErrorHandler("Reset Password Token is invalid"));
+  }
+
+  if (req.body.newPassword !== req.body.confirmPassword) {
+    return next(new ErrorHandler("Password does not Match", 400));
+  }
+  user.password = req.body.newPassword;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+
+  await user.save();
+  res.status(200).json({ success: true });
+});
