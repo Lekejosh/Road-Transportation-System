@@ -50,8 +50,6 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
   sendToken(user, 201, res);
 });
 
-
-
 exports.verifyEmail = catchAsyncErrors(async (req, res, next) => {
   const { otp } = req.body;
 
@@ -137,4 +135,16 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
 
   user.getJWTToken();
   sendToken(user, 200, res);
+});
+
+exports.logoutUser = catchAsyncErrors(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+  user.logoutTime = Date.now();
+  await user.save();
+
+  res.cookie("token", null, {
+    expires: new Date(Date.now()),
+    httpOnly: true,
+  });
+  res.status(200).json({ success: true });
 });

@@ -6,6 +6,7 @@ const {
   loginUser,
   verifyEmail,
   resendOtp,
+  logoutUser,
 } = require("../controllers/userController");
 
 const { isAuthenticatedUser, authorizeRole } = require("../middlewares/auth");
@@ -16,5 +17,6 @@ router
   .route("/email/verification")
   .post(isAuthenticatedUser, verifyEmail)
   .get(isAuthenticatedUser, resendOtp);
+  router.route('/logout').get(isAuthenticatedUser,logoutUser)
 
 module.exports = router;
