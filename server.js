@@ -8,6 +8,8 @@ process.on("uncaughtException", (err) => {
   process.exit(1);
 });
 
+mongoose.set("strictQuery", true);
+
 mongoose
   .connect(process.env.DB_URI)
   .then(() =>

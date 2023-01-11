@@ -28,13 +28,16 @@ const userSchema = new mongoose.Schema({
     select: false,
   },
   isVerified: { type: Boolean, required: true, default: false },
-  mobileNumber: { type: Number },
+  mobileNumber: { type: String },
   originState: { type: String },
   localGovernment: { type: String },
   nextOfKin: { type: String },
-  nextOfKinPhoneNumber: { type: Number },
+  nextOfKinPhoneNumber: { type: String },
   lastLoggedIn: {
     type: Date,
+  },
+  logoutTime:{
+type:Date
   },
   created: {
     type: Date,

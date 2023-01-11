@@ -1,9 +1,9 @@
 const express = require("express");
 const User = require("../models/userModel");
 const crypto = require("crypto");
-const ErrorHandler = require("../utils/errorHandler")
+const ErrorHandler = require("../utils/errorHandler");
 const sendEmail = require("../utils/sendMail");
-const catchAsyncErrors = require("../middlewares/catchAsyncErrors")
+const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const sendToken = require("../utils/jwtToken");
 
 exports.registerUser = catchAsyncErrors(async (req, res, next) => {
@@ -49,23 +49,44 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
     return next(new ErrorHandler(err.message, 500));
   }
-   sendToken(user, 201, res);
+  sendToken(user, 201, res);
 });
 
-exports.loginUser = catchAsyncErrors(async(req, res, next) => {
-  const {emailNumb,password} = req.body
+exports.loginUser = catchAsyncErrors(async (req, res, next) => {
+  const { emailNumb, password } = req.body;
 
-  if(!emailNumb || !password) {
-    return next(new ErrorHandler("Please Enter your Email Address/Mobile Number and Password", 400));
+  if (!emailNumb || !password) {
+    return next(
+      new ErrorHandler(
+        "Please Enter your Email Address/Mobile Number and Password",
+        400
+      )
+    );
   }
-   const user = await User.findOne({
-     $or: [
-       {
-         email: emailNumb,
-       },
-       {
-         mobileNumber: emailNumb,
-       },
-     ],
-   }).select("+password");
-})
+  const user = await User.findOne({
+    $or: [
+      {
+        email: emailNumb,
+      },
+      {
+        mobileNumber  : emailNumb,
+      },
+    ],
+  }).select("+password");
+
+  if (!user) {
+    return next(new ErrorHandler("Invalid Mobile Number/Email", 401));
+  }
+  const isPasswordMatched = await user.comparePassword(password);
+  if (!isPasswordMatched) {
+    return next(new ErrorHandler("Invalid password", 401));
+  }
+  if (!user.isVerified) {
+    return next(new ErrorHandler("Please Verify your Email address", 403));
+  }
+  user.lastLoggedIn = Date.now();
+  await user.save();
+
+  user.getJWTToken();
+  sendToken(user, 200, res);
+});
