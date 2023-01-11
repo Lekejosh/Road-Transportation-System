@@ -48,8 +48,7 @@ type:Date
     type: String,
     default: "user",
   },
-  verifyEmailToken: String,
-  verifyEmailExpire: Date,
+  generatedOtp:String,
   resetPasswordToken: String,
   resetPasswordExpire: Date,
 });
@@ -83,20 +82,6 @@ userSchema.methods.getResetPasswordToken = function () {
 
   this.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
   return resetToken;
-};
-
-userSchema.methods.getVerifyEmailToken = function () {
-  //Generating token for Email Verification
-  const verifyToken = crypto.randomBytes(20).toString("hex");
-
-  //Hashing and Add emailVerificationToken to userSchema
-  this.verifyEmailToken = crypto
-    .createHash("sha256")
-    .update(verifyToken)
-    .digest("hex");
-
-  this.verifyEmailExpire = Date.now() + 10080 * 60 * 1000;
-  return verifyToken;
 };
 
 module.exports = mongoose.model("user", userSchema);
