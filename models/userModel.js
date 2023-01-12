@@ -33,6 +33,7 @@ const userSchema = new mongoose.Schema({
   localGovernment: { type: String },
   nextOfKin: { type: String },
   nextOfKinPhoneNumber: { type: String },
+  lastUpdated:{type:Date},
   lastLoggedIn: {
     type: Date,
   },

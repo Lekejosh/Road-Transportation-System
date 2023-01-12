@@ -1,4 +1,3 @@
-const express = require("express");
 const User = require("../models/userModel");
 const crypto = require("crypto");
 const ErrorHandler = require("../utils/errorHandler");
@@ -6,7 +5,6 @@ const sendEmail = require("../utils/sendMail");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const sendToken = require("../utils/jwtToken");
 const { generateOTP } = require("../utils/otpGenerator");
-const { findById } = require("../models/userModel");
 
 exports.registerUser = catchAsyncErrors(async (req, res, next) => {
   const {
@@ -151,11 +149,8 @@ exports.logoutUser = catchAsyncErrors(async (req, res, next) => {
 
 exports.updateProfile = catchAsyncErrors(async (req, res, next) => {
   const profileUpdate = {
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
     mobileNumber: req.body.mobileNumber,
-    nextOfKin: req.body.nextOfKin,
-    nextOfKinPhoneNumber: req.body.nextOfKinPhoneNumber,
+    lastUpdated: Date.now(),
   };
 
   await User.findByIdAndUpdate(req.user.id, profileUpdate);
@@ -203,7 +198,7 @@ exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
     await sendEmail({
       email: user.email,
       subject: `User Password Recovery`,
-      html:message,
+      html: message,
     }).then((r) => {
       console.log("Reset token Sent");
     });
@@ -240,5 +235,51 @@ exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
   user.resetPasswordExpire = undefined;
 
   await user.save();
+  res.status(200).json({ success: true });
+});
+
+// Admin
+
+exports.getAllUsers = catchAsyncErrors(async (req, res, next) => {
+  const user = await User.find({});
+  if (!user) {
+    return next(new ErrorHandler("Not user Found", 400));
+  }
+  res.status(200).json({ success: true });
+});
+
+exports.getUser = catchAsyncErrors(async (req, res, next) => {
+  const { id } = req.params;
+  const user = await User.findById(id);
+  if (!user) {
+    return next(new ErrorHandler(`No User with ${id}`, 400));
+  }
+  res.status(200).json({ success: true, user });
+});
+
+exports.updateUser = catchAsyncErrors(async (req, res, next) => {
+  const { id } = req.params;
+  const userUpdate = {
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    role: req.body.role,
+
+    nextOfKin: req.body.nextOfKin,
+    nextOfKinPhoneNumber: req.body.nextOfKinPhoneNumber,
+    lastUpdated: Date.now(),
+  };
+  const user = await User.findByIdAndUpdate(id,userUpdate);
+  if (!user) {
+    return next(new ErrorHandler(`No User with ${id}`, 400));
+  }
+  res.status(200).json({success:true})
+});
+
+exports.deleteUser = catchAsyncErrors(async (req, res, next) => {
+  const { id } = req.params;
+  const user = await User.findById(id);
+  if (!user) {
+    return next(new ErrorHandler(`No User with ${id}`, 400));
+  }
   res.status(200).json({ success: true });
 });
