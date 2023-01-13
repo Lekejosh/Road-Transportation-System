@@ -5,7 +5,7 @@ const transportSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "user",
   },
-  seatNo: { type: String },
+  seatNo: { type: String,unique:true },
   location: { type: String },
   vehicleName: { type: String },
   departureTime: { type: String },
