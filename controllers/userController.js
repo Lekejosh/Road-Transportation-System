@@ -240,7 +240,6 @@ exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Driver
-
 exports.registerDriver = catchAsyncErrors(async (req, res, next) => {
   const driverDetails = {
     licenceNumber: req.body.licenceNumber,

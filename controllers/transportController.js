@@ -27,7 +27,7 @@ exports.createTransport = catchAsyncErrors(async (req, res, next) => {
     driver: req.user.id,
   });
 
-  res.status(200).json({success:true,transport})
+  res.status(200).json({ success: true, transport });
 });
 
 exports.tripUpdate = catchAsyncErrors(async (req, res, next) => {
@@ -36,21 +36,13 @@ exports.tripUpdate = catchAsyncErrors(async (req, res, next) => {
     arrivalState: req.body.arrivalState,
     depatureTime: req.body.depatureTime,
   };
-  const user = await User.findOneAndUpdate(
-    { id: req.user.id, date: Date.now() },
-    trip
-  );
-  sendToken(user, 201, res);
+  await Transport.findOneAndUpdate({ id: req.user.id, date: Date.now() }, trip);
+  res.status(200).json({ success: true });
 });
 exports.onArrival = catchAsyncErrors(async (req, res, next) => {
   const trip = {
     arrivalTime: req.body.arrivalTime,
   };
-  const user = await User.findOneAndUpdate(
-    { id: req.user.id, date: Date.now() },
-    trip
-  );
-  sendToken(user, 201, res);
+  await Transport.findOneAndUpdate({ id: req.user.id, date: Date.now() }, trip);
+  res.status(200).json({ success: true });
 });
-
-
