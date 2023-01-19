@@ -1,19 +1,34 @@
 const mongoose = require("mongoose");
 
-const paymentSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "user",
-  },
-  isComplete: {
-    type: Boolean,
-    default: false,
-  },
+const paymentStatusOption = ['pending','done','error']
 
-  orderId: {
-    type: String,
-  },
-});
+const actionTypeOptions = ["ArticleCreation"];
+
+const paymentSchema = new mongoose.Schema({
+ status: {
+        // Current status of payment
+        type: String,
+        enum: paymentStatusOption,
+        required: true,
+    },
+    actionType: {
+        // Type of action
+        type: String,
+        enum: actionTypeOptions,
+        required: true,
+    },
+    actionData: {
+       
+        type: Object,
+    },
+    paymentId: {
+        
+        type: String,
+        default: '',
+    },
+    created: { type: Date, default: Date.now, required: true },
+}, {autoCreate: true});
+
 
 
 module.exports = mongoose.model("payment",paymentSchema)

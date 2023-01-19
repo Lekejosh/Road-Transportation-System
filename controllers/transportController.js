@@ -36,12 +36,16 @@ exports.tripUpdate = catchAsyncErrors(async (req, res, next) => {
     arrivalState: req.body.arrivalState,
     depatureTime: req.body.depatureTime,
   };
-  await Transport.findOneAndUpdate({ id: req.user.id, date: Date.now() }, trip);
+  const transport = await Transport.findOneAndUpdate({ id: req.user.id, date: Date.now() }, trip);
+
+  if(!transport){
+   return next(new ErrorHandler(500))
+  }
   res.status(200).json({ success: true });
 });
 exports.onArrival = catchAsyncErrors(async (req, res, next) => {
   const trip = {
-    arrivalTime: req.body.arrivalTime,
+    arrivalTime: Date.now(),
   };
   await Transport.findOneAndUpdate({ id: req.user.id, date: Date.now() }, trip);
   res.status(200).json({ success: true });

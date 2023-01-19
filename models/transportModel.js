@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const transportSchema = new mongoose.Schema({
   driver: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "user",
+    ref: "User",
   },
   date: {
     type: Date,
