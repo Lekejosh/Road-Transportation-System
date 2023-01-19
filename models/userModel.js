@@ -27,29 +27,72 @@ const userSchema = new mongoose.Schema({
     minLength: [8, "Password should be 8 characters or more"],
     select: false,
   },
-  isVerified: { type: Boolean, required: true, default: false },
-  mobileNumber: { type: String },
-  originState: { type: String },
-  localGovernment: { type: String },
-  nextOfKin: { type: String },
-  nextOfKinPhoneNumber: { type: String },
-  lastUpdated:{type:Date},
+  isVerified: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  mobileNumber: {
+    type: String,
+  },
+  originState: {
+    type: String,
+  },
+  localGovernment: {
+    type: String,
+  },
+  nextOfKin: {
+    type: String,
+  },
+  nextOfKinPhoneNumber: {
+    type: String,
+  },
+  departureState: {
+    type: String,
+  },
+  arrivalState: {
+    type: String,
+  },
+  depatureTime:{
+    type: Date,
+  },
+  arrivalTime:{
+    type:Date
+  },
+  plateNumber: {
+    type: String,
+  },
+  licenceNumber: {
+    type: Number,
+  },
+  licenceFront: {
+    type: String,
+  },
+  licenceBack: {
+    type: String,
+  },
+  lastUpdated: {
+    type: Date,
+  },
   lastLoggedIn: {
     type: Date,
   },
-  logoutTime:{
-type:Date
+  logoutTime: {
+    type: Date,
   },
   created: {
     type: Date,
     required: true,
     default: Date.now,
   },
+  avatar: {
+    type: String,
+  },
   role: {
     type: String,
     default: "user",
   },
-  generatedOtp:String,
+  generatedOtp: String,
   resetPasswordToken: String,
   resetPasswordExpire: Date,
 });

@@ -1,4 +1,3 @@
-
 const express = require("express");
 const router = express.Router();
 const {
@@ -8,6 +7,7 @@ const {
   resendOtp,
   logoutUser,
   updateProfile,
+  updateUser,
   forgotPassword,
   resetPassword,
   updatePassword,
@@ -25,16 +25,20 @@ router
   .post(isAuthenticatedUser, verifyEmail)
   .get(isAuthenticatedUser, resendOtp);
 router.route("/logout").get(isAuthenticatedUser, logoutUser);
-router.route("/update").put(isAuthenticatedUser, updateProfile).post(isAuthenticatedUser, updatePassword);
-router.route('/password/forgot').post(forgotPassword)
+router
+  .route("/update")
+  .put(isAuthenticatedUser, updateProfile)
+  .post(isAuthenticatedUser, updatePassword);
+router.route("/password/forgot").post(forgotPassword);
 
-router.route('/password/reset/:token').put(resetPassword)
-router.route('/all').get(isAuthenticatedUser, authorizeRole("admin"),getAllUsers)
+router.route("/password/reset/:token").put(resetPassword);
+router
+  .route("/all")
+  .get(isAuthenticatedUser, authorizeRole("admin"), getAllUsers);
 router
   .route("/user/:id")
   .get(isAuthenticatedUser, authorizeRole("admin"), getUser)
   .delete(isAuthenticatedUser, authorizeRole("admin"), deleteUser)
   .patch(isAuthenticatedUser, authorizeRole("admin"), updateUser);
-
 
 module.exports = router;

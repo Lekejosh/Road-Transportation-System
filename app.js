@@ -23,9 +23,11 @@ const sessionConfig = {
 app.use(session(sessionConfig));
 
 const user = require("./routes/userRoute");
+const driver = require("./routes/driverRoute")
 
 // Routes
 app.use("/api/v1/user", user);
+app.use("/api/v1/driver",driver)
 
 app.use(errorMiddleware);
 

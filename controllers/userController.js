@@ -136,6 +136,7 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
 });
 
 exports.logoutUser = catchAsyncErrors(async (req, res, next) => {
+  console.log(req);
   const user = await User.findById(req.user.id);
   user.logoutTime = Date.now();
   await user.save();
@@ -238,6 +239,39 @@ exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
   res.status(200).json({ success: true });
 });
 
+// Driver
+
+exports.registerDriver = catchAsyncErrors(async (req, res, next) => {
+  const driverDetails = {
+    licenceNumber: req.body.licenceNumber,
+    licenceFront: req.body.licenceFront,
+    licenceBack: req.body.licenceBack,
+    plateNumber: req.body.plateNumber,
+  };
+  if (!req.user.id) {
+    return next(new ErrorHandler("User does not exist"));
+  }
+  const user = await User.create(req.user.id, driverDetails);
+  sendToken(user, 201, res);
+});
+
+exports.findDriver = catchAsyncErrors(async (req, res, next) => {
+  const driver = await User.find({ role: "driver" });
+
+  if (!driver) {
+    return next(new ErrorHandler("No Driver Exist", 400));
+  }
+  res.status(200).json({ success: true, driver });
+});
+
+exports.findOneDriver = catchAsyncErrors(async (req, res, next) => {
+  const { q } = req.query;
+  const driver = await User.findOne({ id: q, role: "driver" });
+  if (!driver) {
+    return next(new ErrorHandler(`No Driver with this ${q} exists`, 400));
+  }
+  res.status(200).json({ success: true, driver });
+});
 // Admin
 
 exports.getAllUsers = catchAsyncErrors(async (req, res, next) => {
@@ -268,11 +302,11 @@ exports.updateUser = catchAsyncErrors(async (req, res, next) => {
     nextOfKinPhoneNumber: req.body.nextOfKinPhoneNumber,
     lastUpdated: Date.now(),
   };
-  const user = await User.findByIdAndUpdate(id,userUpdate);
+  const user = await User.findByIdAndUpdate(id, userUpdate);
   if (!user) {
     return next(new ErrorHandler(`No User with ${id}`, 400));
   }
-  res.status(200).json({success:true})
+  res.status(200).json({ success: true });
 });
 
 exports.deleteUser = catchAsyncErrors(async (req, res, next) => {
