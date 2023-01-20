@@ -32,9 +32,6 @@ const transportSchema = new mongoose.Schema({
   arrivalState: {
     type: String,
   },
-  departureTime: {
-    type: Date,
-  },
   arrivalTime: {
     type: String,
   },
@@ -42,7 +39,7 @@ const transportSchema = new mongoose.Schema({
     type: String,
   },
   price: {
-    type: Sting,
+    type: String,
   },
   isComplete: {
     type: Boolean,
