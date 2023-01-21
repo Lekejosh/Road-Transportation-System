@@ -22,7 +22,7 @@ router
   .delete(isAuthenticatedUser, authorizeRole("admin"), deleteUser)
   .patch(isAuthenticatedUser, authorizeRole("admin"), updateUser);
 
-  router.route("/summary").get(isAuthenticatedUser, getDailyReport);
+  router.route("/summary").get(isAuthenticatedUser,authorizeRole("admin"), getDailyReport);
 
 // Transport
 router
