@@ -5,9 +5,10 @@ const {
   getAllUsers,
   getUser,
   deleteUser,
-} = require("../controllers/userController");
-
-const { getAllTrips } = require("../controllers/transportController");
+  updateUser,
+  getAllTrips,
+  getDailyReport,
+} = require("../controllers/adminController");
 
 const { isAuthenticatedUser, authorizeRole } = require("../middlewares/auth");
 
@@ -21,7 +22,9 @@ router
   .delete(isAuthenticatedUser, authorizeRole("admin"), deleteUser)
   .patch(isAuthenticatedUser, authorizeRole("admin"), updateUser);
 
-// Trip
+  router.route("/summary").get(isAuthenticatedUser, getDailyReport);
+
+// Transport
 router
   .route("/daily")
   .get(isAuthenticatedUser, authorizeRole("admin"), getAllTrips);

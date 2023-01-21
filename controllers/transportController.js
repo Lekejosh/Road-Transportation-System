@@ -35,12 +35,8 @@ exports.tripUpdate = catchAsyncErrors(async (req, res, next) => {
     arrivalState: req.body.arrivalState,
     depatureTime: req.body.depatureTime,
   };
-  
 
-  const transport = await Transport.findByIdAndUpdate(
-    req.query.id,
-    trip
-  );
+  const transport = await Transport.findByIdAndUpdate(req.query.id, trip);
 
   if (!transport) {
     return next(new ErrorHandler("Internal Server Error", 500));
@@ -63,23 +59,8 @@ exports.getTripByState = catchAsyncErrors(async (req, res, next) => {
     date: { $gte: startOfToday, $lt: startOfTomorrow },
     departureState: departure,
     arrivalState: arrival,
-    isComplete:false,
+    isComplete: false,
   }).populate("driver", "email firstName lastName");
 
   res.status(200).json({ success: true, transport });
 });
-
-// Admin
-exports.getAllTrips = catchAsyncErrors(async(req,res,next)=>{
-  const transport = await Transport.aggregate([
-    {
-      $group: {
-        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-        data: { $push: "$$ROOT" },
-        trips: { $sum: 1 },
-      },
-    },
-    { $sort: { _id: 1 } },
-  ]);
-  res.status(200).json({success:true,transport})
-})
