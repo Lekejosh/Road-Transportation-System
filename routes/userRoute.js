@@ -11,9 +11,6 @@ const {
   forgotPassword,
   resetPassword,
   updatePassword,
-  getAllUsers,
-  getUser,
-  deleteUser,
 } = require("../controllers/userController");
 
 const { isAuthenticatedUser, authorizeRole } = require("../middlewares/auth");
@@ -32,13 +29,5 @@ router
 router.route("/password/forgot").post(forgotPassword);
 
 router.route("/password/reset/:token").put(resetPassword);
-router
-  .route("/all")
-  .get(isAuthenticatedUser, authorizeRole("admin"), getAllUsers);
-router
-  .route("/user/:id")
-  .get(isAuthenticatedUser, authorizeRole("admin"), getUser)
-  .delete(isAuthenticatedUser, authorizeRole("admin"), deleteUser)
-  .patch(isAuthenticatedUser, authorizeRole("admin"), updateUser);
 
 module.exports = router;

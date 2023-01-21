@@ -26,12 +26,14 @@ const user = require("./routes/userRoute");
 const driver = require("./routes/driverRoute");
 const transport = require("./routes/transportRoute");
 const order = require("./routes/orderRoute");
+const admin = require("./routes/adminRoute");
 
 // Routes
 app.use("/api/v1/user", user);
 app.use("/api/v1/driver", driver);
 app.use("/api/v1/transport", transport);
 app.use("/api/v1/order", order);
+app.use("/api/v1/admin", admin);
 
 app.use(errorMiddleware);
 

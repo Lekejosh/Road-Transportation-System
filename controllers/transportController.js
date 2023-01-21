@@ -75,11 +75,11 @@ exports.getAllTrips = catchAsyncErrors(async(req,res,next)=>{
     {
       $group: {
         _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-        orders: { $sum: 1 },
+        data: { $push: "$$ROOT" },
+        trips: { $sum: 1 },
       },
     },
     { $sort: { _id: 1 } },
   ]);
-
   res.status(200).json({success:true,transport})
 })
