@@ -4,98 +4,97 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
-const userSchema = new mongoose.Schema({
-  firstName: {
-    type: String,
-    required: [true, "Please Enter First Name"],
-    maxLength: [20, "First Name Cannot exceed 20 Characters"],
+const userSchema = new mongoose.Schema(
+  {
+    firstName: {
+      type: String,
+      required: [true, "Please Enter First Name"],
+      maxLength: [20, "First Name Cannot exceed 20 Characters"],
+    },
+    lastName: {
+      type: String,
+      required: [true, "Please Enter Last Name"],
+      maxLength: [20, "Last Name Cannot exceed 20 Characters"],
+    },
+    email: {
+      type: String,
+      required: [true, "Please Enter Email"],
+      unique: true,
+      validate: [validator.isEmail, "Please Enter a valid Email Address"],
+    },
+    password: {
+      type: String,
+      required: [true, "Please Enter your Password"],
+      minLength: [8, "Password should be 8 characters or more"],
+      select: false,
+    },
+    isVerified: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    mobileNumber: {
+      type: String,
+    },
+    originState: {
+      type: String,
+    },
+    localGovernment: {
+      type: String,
+    },
+    nextOfKin: {
+      type: String,
+    },
+    nextOfKinPhoneNumber: {
+      type: String,
+    },
+    departureState: {
+      type: String,
+    },
+    arrivalState: {
+      type: String,
+    },
+    depatureTime: {
+      type: Date,
+    },
+    arrivalTime: {
+      type: Date,
+    },
+    plateNumber: {
+      type: String,
+    },
+    licenceNumber: {
+      type: Number,
+    },
+    licenceFront: {
+      type: String,
+    },
+    licenceBack: {
+      type: String,
+    },
+
+    lastLoggedIn: {
+      type: Date,
+    },
+    logoutTime: {
+      type: Date,
+    },
+
+    avatar: {
+      type: String,
+    },
+    role: {
+      type: String,
+      default: "user",
+    },
+    generatedOtp: String,
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
   },
-  lastName: {
-    type: String,
-    required: [true, "Please Enter Last Name"],
-    maxLength: [20, "Last Name Cannot exceed 20 Characters"],
-  },
-  email: {
-    type: String,
-    required: [true, "Please Enter Email"],
-    unique: true,
-    validate: [validator.isEmail, "Please Enter a valid Email Address"],
-  },
-  password: {
-    type: String,
-    required: [true, "Please Enter your Password"],
-    minLength: [8, "Password should be 8 characters or more"],
-    select: false,
-  },
-  isVerified: {
-    type: Boolean,
-    required: true,
-    default: false,
-  },
-  mobileNumber: {
-    type: String,
-  },
-  originState: {
-    type: String,
-  },
-  localGovernment: {
-    type: String,
-  },
-  nextOfKin: {
-    type: String,
-  },
-  nextOfKinPhoneNumber: {
-    type: String,
-  },
-  departureState: {
-    type: String,
-  },
-  arrivalState: {
-    type: String,
-  },
-  depatureTime:{
-    type: Date,
-  },
-  arrivalTime:{
-    type:Date
-  },
-  plateNumber: {
-    type: String,
-  },
-  licenceNumber: {
-    type: Number,
-  },
-  licenceFront: {
-    type: String,
-  },
-  licenceBack: {
-    type: String,
-  },
-  lastUpdated: {
-    type: Date,
-  },
-  lastLoggedIn: {
-    type: Date,
-  },
-  logoutTime: {
-    type: Date,
-  },
-  created: {
-    type: Date,
-    required: true,
-    default: Date.now,
-  },
-  avatar: {
-    type: String,
-  },
-  role: {
-    type: String,
-    default: "user",
-  },
-  generatedOtp: String,
-  resetPasswordToken: String,
-  resetPasswordExpire: Date,
-});
+  {
+    timestamps: true,
+  }
+);
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
