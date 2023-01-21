@@ -14,8 +14,8 @@ const { isAuthenticatedUser, authorizeRole } = require("../middlewares/auth");
 
 // Users
 router
-  .route("/all")
-  .get(isAuthenticatedUser, authorizeRole("admin"), getAllUsers);
+  .route("/users")
+  .get(isAuthenticatedUser, getAllUsers);
 router
   .route("/user/:id")
   .get(isAuthenticatedUser, authorizeRole("admin"), getUser)

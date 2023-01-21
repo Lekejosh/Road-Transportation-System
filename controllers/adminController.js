@@ -2,14 +2,18 @@ const User = require("../models/userModel");
 const Transport = require("../models/transportModel");
 const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
+const ApiFeatures = require("../utils/apiFeatures");
 
 // Users
-exports.getAllUsers = catchAsyncErrors(async (req, res, next) => {
-  const user = await User.find({});
-  if (!user) {
-    return next(new ErrorHandler("Not user Found", 400));
-  }
-  res.status(200).json({ success: true });
+exports.getAllUsers = catchAsyncErrors(async (req, res) => {
+  const resultPerPage = 5;
+  const apiFeature = new ApiFeatures(User.find(), req.query)
+    .search()
+    .filter()
+    .pagination(resultPerPage);
+  const users = await apiFeature.query;
+
+  res.status(200).json({ success: true, users });
 });
 
 exports.getUser = catchAsyncErrors(async (req, res, next) => {
@@ -65,8 +69,9 @@ exports.getAllTrips = catchAsyncErrors(async (req, res, next) => {
 exports.getDailyReport = catchAsyncErrors(async (req, res, next) => {
   const users = await User.aggregate([
     {
-      $match: { role: { $ne: "user" } }
-    },{
+      $match: { role: { $ne: "user" } },
+    },
+    {
       $group: {
         _id: null,
         numUsers: { $sum: 1 },
@@ -76,7 +81,8 @@ exports.getDailyReport = catchAsyncErrors(async (req, res, next) => {
   const drivers = await User.aggregate([
     {
       $match: { role: { $ne: "drivers" } },
-    },{
+    },
+    {
       $group: {
         _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
         data: { $push: "$$ROOT" },
@@ -87,7 +93,7 @@ exports.getDailyReport = catchAsyncErrors(async (req, res, next) => {
   ]);
   const admins = await User.aggregate([
     {
-      $match: { role: { $ne: "admin" } }
+      $match: { role: { $ne: "admin" } },
     },
     {
       $group: {
