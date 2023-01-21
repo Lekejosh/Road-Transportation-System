@@ -15,11 +15,6 @@ exports.createTransport = catchAsyncErrors(async (req, res, next) => {
     departureState,
     price,
   } = req.body;
-
-  // var today = today.getDate();
-  // console.log(today)
-  // var Date = today.toISOString().split("T")[0];
-
   const transport = await Transport.create({
     totalSeat,
     departureTime,

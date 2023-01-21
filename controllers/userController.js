@@ -151,7 +151,7 @@ exports.logoutUser = catchAsyncErrors(async (req, res, next) => {
 exports.updateProfile = catchAsyncErrors(async (req, res, next) => {
   const profileUpdate = {
     mobileNumber: req.body.mobileNumber,
-    lastUpdated: Date.now(),
+    
   };
 
   await User.findByIdAndUpdate(req.user.id, profileUpdate);
@@ -299,7 +299,7 @@ exports.updateUser = catchAsyncErrors(async (req, res, next) => {
 
     nextOfKin: req.body.nextOfKin,
     nextOfKinPhoneNumber: req.body.nextOfKinPhoneNumber,
-    lastUpdated: Date.now(),
+    
   };
   const user = await User.findByIdAndUpdate(id, userUpdate);
   if (!user) {

@@ -44,9 +44,6 @@ const orderSchema = new mongoose.Schema(
     seatNo: {
       type: String,
     },
-    createdAt:{
-        type:Date,
-    }
   },
   {
     timestamps: true,
