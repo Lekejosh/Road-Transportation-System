@@ -7,10 +7,10 @@ const {
   resendOtp,
   logoutUser,
   updateProfile,
-  createDriverReview,
   forgotPassword,
   resetPassword,
   updatePassword,
+  createDriverReview,
 } = require("../controllers/userController");
 
 const { isAuthenticatedUser } = require("../middlewares/auth");

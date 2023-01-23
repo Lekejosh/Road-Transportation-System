@@ -33,6 +33,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       default: false,
     },
+
     mobileNumber: {
       type: String,
     },
@@ -104,6 +105,9 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
+    completedTrips: {
+      type: String,
+    },
     avatar: {
       type: String,
     },
