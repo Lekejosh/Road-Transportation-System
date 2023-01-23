@@ -7,13 +7,13 @@ const {
   resendOtp,
   logoutUser,
   updateProfile,
-  updateUser,
+  createDriverReview,
   forgotPassword,
   resetPassword,
   updatePassword,
 } = require("../controllers/userController");
 
-const { isAuthenticatedUser, authorizeRole } = require("../middlewares/auth");
+const { isAuthenticatedUser } = require("../middlewares/auth");
 
 router.route("/register").post(registerUser);
 router.route("/login").post(loginUser);
@@ -29,5 +29,7 @@ router
 router.route("/password/forgot").post(forgotPassword);
 
 router.route("/password/reset/:token").put(resetPassword);
+
+router.route("/review").post(isAuthenticatedUser, createDriverReview);
 
 module.exports = router;
