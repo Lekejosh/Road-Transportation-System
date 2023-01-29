@@ -5,6 +5,7 @@ const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 
 //TODO: Send mail to user on order creation
+//TODO: Give User Seat Number payment
 
 exports.newOrder = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.query;

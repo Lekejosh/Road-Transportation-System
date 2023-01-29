@@ -5,8 +5,6 @@ const ErrorHandler = require("../utils/errorHandler");
 const sendEmail = require("../utils/sendMail");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 
-// TODO: Work on Arrival Route to send Arrival Mail to all users
-// TODO: Add Driver Rating, Driver Total Rides
 exports.createTransport = catchAsyncErrors(async (req, res, next) => {
   const { totalSeat, plateNumber, vehicle, departureState, price } = req.body;
   const transport = await Transport.create({
