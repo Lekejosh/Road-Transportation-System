@@ -1,6 +1,7 @@
 const Order = require("../models/orderModel");
 const Transport = require("../models/transportModel");
 const User = require("../models/userModel");
+const ApiFeatures = require("../utils/apiFeatures");
 const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 
@@ -56,8 +57,16 @@ exports.getSingleOrder = catchAsyncErrors(async (req, res, next) => {
 });
 
 exports.getAllOrders = catchAsyncErrors(async (req, res, next) => {
-  const orders = await Order.find({ user: req.user._id });
+  const resultPerPage = 5;
+  const apiFeature = new ApiFeatures(
+    Order.find({ user: req.user._id }),
+    req.query
+  ).pagination(resultPerPage);
+  const orders = await apiFeature.query;
 
+  if (orders.length == 0) {
+    return next(new ErrorHandler("Nothing dey again", 400));
+  }
   res.status(200).json({
     success: true,
     orders,
@@ -66,7 +75,6 @@ exports.getAllOrders = catchAsyncErrors(async (req, res, next) => {
 
 async function updateSeat(id, quantity) {
   const transport = await Transport.findById(id);
-
   transport.totalSeat -= quantity;
   transport.save({ validateBeforeSave: false });
 }
