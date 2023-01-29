@@ -7,7 +7,21 @@ const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 
 exports.createTransport = catchAsyncErrors(async (req, res, next) => {
   const { totalSeat, plateNumber, vehicle, departureState, price } = req.body;
-  const transport = await Transport.create({
+
+   const startOfToday = new Date().setHours(0, 0, 0, 0);
+   const startOfTomorrow = new Date().setHours(24, 0, 0, 0);
+
+    const transport = await Transport.findOne({
+      driver: req.user.id,
+      createdAt: { $gte: startOfToday, $lt: startOfTomorrow },
+    });
+
+    if (transport) {
+      return next(
+        new ErrorHandler("Oga, How many Trip you wan take today?👀", 400)
+      );
+    }
+  const newTransport = await Transport.create({
     totalSeat,
     plateNumber,
     vehicle,
@@ -17,7 +31,7 @@ exports.createTransport = catchAsyncErrors(async (req, res, next) => {
     driver: req.user.id,
   });
 
-  res.status(200).json({ success: true, transport });
+  res.status(200).json({ success: true, newTransport });
 });
 
 exports.tripUpdate = catchAsyncErrors(async (req, res, next) => {
