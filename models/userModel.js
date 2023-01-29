@@ -36,18 +36,23 @@ const userSchema = new mongoose.Schema(
 
     mobileNumber: {
       type: String,
+      required: [true, "Please Input Mobile Number"],
     },
     originState: {
       type: String,
+      required: [true, "Please Input State Of Origin"],
     },
     localGovernment: {
       type: String,
+      required: [true, "Please Input Local Government Area"],
     },
     nextOfKin: {
       type: String,
+      required: [true, "Please Input Next Of Kin "],
     },
     nextOfKinPhoneNumber: {
       type: String,
+      required: [true, "Please Input Next of Kin Mobile Number"],
     },
     departureState: {
       type: String,
@@ -63,9 +68,11 @@ const userSchema = new mongoose.Schema(
     },
     plateNumber: {
       type: String,
+      required: [true, "Please Input Vechicle Plate Number"],
     },
     licenceNumber: {
       type: Number,
+      required: [true, "Please Input Your Driver Licence Number"],
     },
     licenceFront: {
       type: String,
@@ -106,7 +113,8 @@ const userSchema = new mongoose.Schema(
       },
     ],
     completedTrips: {
-      type: String,
+      type: Number,
+      default: 0,
     },
     avatar: {
       type: String,
@@ -155,4 +163,4 @@ userSchema.methods.getResetPasswordToken = function () {
   return resetToken;
 };
 
-module.exports = mongoose.model("user", userSchema);
+module.exports = mongoose.model("User", userSchema);

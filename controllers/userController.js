@@ -250,7 +250,7 @@ exports.registerDriver = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("User does not exist"));
   }
   const user = await User.create(req.user.id, driverDetails);
-  sendToken(user, 201, res);
+  res.status(200).json({success:true, user})
 });
 
 exports.findDriver = catchAsyncErrors(async (req, res, next) => {
@@ -272,3 +272,77 @@ exports.findOneDriver = catchAsyncErrors(async (req, res, next) => {
 });
 
 
+exports.createDriverReview = catchAsyncErrors(async (req, res, next) => {
+  const { id } = req.query;
+  const { rating, comment } = req.body;
+
+  const review = {
+    user: req.user._id,
+    name: req.user.firstName + " " + req.user.lastName,
+    rating: Number(rating),
+    comment,
+  };
+  const user = await User.findById(id);
+
+  if (!user) {
+    return next(new ErrorHandler("User does not exist", 400));
+  }
+
+  if (user.role !== "driver") {
+    return next(new ErrorHandler("Can't Rate This User", 401));
+  }
+
+  const isReviewed = user.reviews.find(
+    (rev) => rev.user.toString() === req.user._id.toString()
+  );
+
+  if (isReviewed) {
+    user.reviews.forEach((rev) => {
+      if (rev.user.toString() === req.user._id.toString())
+        (rev.rating = rating), (rev.comment = comment);
+    });
+  } else {
+    user.reviews.push(review);
+    user.numOfReviews = user.reviews.length;
+  }
+  let avg = 0;
+  for (const rev of user.reviews) {
+    avg += rev.rating;
+  }
+  user.ratings = avg / user.reviews.length;
+
+  await user.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+    success: true,
+  });
+});
+
+// exports.updateAvaliablity = catchAsyncErrors(async (req,res,next)=>{
+//   const order = await Order.find(req.params.id)
+
+//   if(order.isPaid){
+//     return next(new ErrorHandler("You have paid for this order Already",400))
+//   }
+
+//   order.orderItems.forEach(async order=>{
+//     await updateSeat(order.transportId,order.transportId.totalSeat)
+//   })
+
+//   order.orderStatus =req.body.status
+
+//   if(order.isPaid){
+
+//     order.paidAt = date.now()
+//   }
+//   await order.save({validateBeforeSave:false})
+
+
+//   res.status(200).json({success:true})
+// })
+
+// async function updateSeat(id,seatNo){
+//   const transport = await Transport.findByid(id)
+
+
+// }

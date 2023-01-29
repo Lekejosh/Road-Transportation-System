@@ -4,7 +4,7 @@ const transportSchema = new mongoose.Schema(
   {
     driver: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "user",
+      ref: "User",
     },
     date: {
       type: Date,
@@ -52,4 +52,4 @@ const transportSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("transport", transportSchema);
+module.exports = mongoose.model("Transport", transportSchema);

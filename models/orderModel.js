@@ -2,22 +2,68 @@ const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema(
   {
-    transportId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Transport",
-      require: true,
+    addressInfo: {
+      address: {
+        type: String,
+        required: true,
+      },
+      city: {
+        type: String,
+        required: true,
+      },
+      state: {
+        type: String,
+        required: true,
+      },
+      postalCode: {
+        type: String,
+        required: true,
+      },
+      phoneNo: {
+        type: String,
+        required: true,
+      },
     },
-    paymentMethod: {
-      type: String,
+    orderItems: [
+      {
+        name: {
+          type: String,
+          required: true,
+        },
+        price: {
+          type: String,
+          required: true,
+        },
+        quantity: {
+          type: String,
+          required: true,
+        },
+        transport: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Transport",
+          require: true,
+        },
+      },
+    ],
+    paymentInfo: {
+      id: {
+        type: String,
+        required: true,
+      },
+      status: {
+        type: String,
+        required: true,
+      },
+    },
+    paidAt: {
+      type: Date,
+    },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
-    paymentResult: {
-      id: String,
-      status: String,
-      update_time: String,
-      email_address: String,
-    },
-    price: {
+    itemsPrice: {
       type: Number,
       default: 0,
     },
@@ -29,25 +75,19 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    isPaid: {
-      type: Boolean,
-      default: false,
-    },
-    paidAt: {
-      type: Date,
-    },
     seatNo: {
       type: String,
     },
+    orderStatus: {
+      type: String,
+      required: true,
+      default: "proccessinf",
+    },
   },
+
   {
     timestamps: true,
   }
 );
 
-module.exports = mongoose.model("order", orderSchema);
+module.exports = mongoose.model("Order", orderSchema);
