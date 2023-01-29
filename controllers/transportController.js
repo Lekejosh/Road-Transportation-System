@@ -61,7 +61,10 @@ exports.isComplete = catchAsyncErrors(async (req, res, next) => {
   });
   if (transport.isComplete === true) {
     return next(
-      new ErrorHandler("How many times do you want to complete this trip?🤦‍♂️", 400)
+      new ErrorHandler(
+        "How many times do you want to complete this trip?🤦‍♂️",
+        400
+      )
     );
   }
   await transport.updateOne({
@@ -93,7 +96,6 @@ Did you enjoy your trip? <a href='${req.protocol}://${req.get(
   }'>Click here</a> to provide a review.`;
 
   await Order.updateMany({ transport: id }, { orderStatus: "Completed" });
-  console.log(orders);
   for (let i = 0; i < orders.length; i++) {
     await sendEmail({
       email: orders[i].user.email,
