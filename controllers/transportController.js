@@ -8,17 +8,9 @@ const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 // TODO: Work on Arrival Route to send Arrival Mail to all users
 // TODO: Add Driver Rating, Driver Total Rides
 exports.createTransport = catchAsyncErrors(async (req, res, next) => {
-  const {
-    totalSeat,
-    departureTime,
-    plateNumber,
-    vehicle,
-    departureState,
-    price,
-  } = req.body;
+  const { totalSeat, plateNumber, vehicle, departureState, price } = req.body;
   const transport = await Transport.create({
     totalSeat,
-    departureTime,
     plateNumber,
     vehicle,
     departureState,
@@ -63,15 +55,26 @@ exports.isComplete = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.params;
   const startOfToday = new Date().setHours(0, 0, 0, 0);
   const startOfTomorrow = new Date().setHours(24, 0, 0, 0);
-  const transport = await Transport.findOneAndUpdate(
-    {
-      driver: req.user.id,
-      date: { $gte: startOfToday, $lt: startOfTomorrow },
-    },
-    { isComplete: complete, arrivalTime: Date.now() }
+  const transport = await Transport.findOne({
+    _id: id,
+    date: { $gte: startOfToday, $lt: startOfTomorrow },
+  });
+  if (transport.isComplete === true) {
+    return next(
+      new ErrorHandler("How many times do you want to complete this trip?🤦‍♂️", 400)
+    );
+  }
+  await transport.updateOne({
+    isComplete: complete,
+    arrivalTime: Date.now(),
+  });
+  await User.findByIdAndUpdate(
+    req.user.id,
+    { $inc: { completedTrips: 1 } },
+    { new: true }
   );
 
-  const orders = await Order.find({ transport: id }).populate('user','email');
+  const orders = await Order.find({ transport: id }).populate("user", "email");
   const driver = await User.findById(transport.driver).select(
     "firstName lastName"
   );
@@ -90,7 +93,7 @@ Did you enjoy your trip? <a href='${req.protocol}://${req.get(
   }'>Click here</a> to provide a review.`;
 
   await Order.updateMany({ transport: id }, { orderStatus: "Completed" });
-  console.log(orders)
+  console.log(orders);
   for (let i = 0; i < orders.length; i++) {
     await sendEmail({
       email: orders[i].user.email,
@@ -99,5 +102,5 @@ Did you enjoy your trip? <a href='${req.protocol}://${req.get(
     });
   }
 
-  res.status(200).json({success:true})
+  res.status(200).json({ success: true });
 });

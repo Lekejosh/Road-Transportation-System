@@ -318,31 +318,3 @@ exports.createDriverReview = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-// exports.updateAvaliablity = catchAsyncErrors(async (req,res,next)=>{
-//   const order = await Order.find(req.params.id)
-
-//   if(order.isPaid){
-//     return next(new ErrorHandler("You have paid for this order Already",400))
-//   }
-
-//   order.orderItems.forEach(async order=>{
-//     await updateSeat(order.transportId,order.transportId.totalSeat)
-//   })
-
-//   order.orderStatus =req.body.status
-
-//   if(order.isPaid){
-
-//     order.paidAt = date.now()
-//   }
-//   await order.save({validateBeforeSave:false})
-
-
-//   res.status(200).json({success:true})
-// })
-
-// async function updateSeat(id,seatNo){
-//   const transport = await Transport.findByid(id)
-
-
-// }
