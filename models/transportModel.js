@@ -22,7 +22,7 @@ const transportSchema = new mongoose.Schema(
       type: String,
     },
     departureTime: {
-      type: String,
+      type: Date,
     },
     plateNumber: {
       type: String,
@@ -34,7 +34,7 @@ const transportSchema = new mongoose.Schema(
       type: String,
     },
     arrivalTime: {
-      type: String,
+      type: Date,
     },
     vehicleType: {
       type: String,

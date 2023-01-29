@@ -7,26 +7,24 @@ const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 exports.newOrder = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.query;
   const {
-    totalPrice,
-    seatNo,
+    addressInfo,
+    orderItem,
+    paymentInfo,
+    itemsPrice,
     taxPrice,
-    paymentMethod,
-    price,
-    paymentResult,
-    isPaid,
+    totalPrice,
   } = req.body;
 
   const order = await Order.create({
-    transportId: id,
-    price,
+    addressInfo,
+    transport:id,
+    orderItem,
+    paymentInfo,
+    itemsPrice,
     taxPrice,
     totalPrice,
-    paymentMethod,
-    paymentResult,
-    isPaid,
+    paidAt: Date.now(),
     user: req.user.id,
-    createdAt: Date.now(),
-    seatNo,
   });
   res.status(201).json({
     success: true,
@@ -34,22 +32,26 @@ exports.newOrder = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-exports.getSingleOrder = catchAsyncErrors(async(req,res,next)=>{
-    const order = await Order.findById(req.params.id).populate("user","email firstName lastName")
-    if(!order){
-        return next(new ErrorHandler("No Order found with this ID",404))
-    }
-    res.status(200).json({
-        success:true,
-        order
-    })
-})
 
-exports.getAllOrders = catchAsyncErrors(async (req,res,next)=>{
-    const orders = await Order.find({user:req.user._id})
+exports.getSingleOrder = catchAsyncErrors(async (req, res, next) => {
+  const order = await Order.findById(req.params.id).populate(
+    "user",
+    "email firstName lastName"
+  );
+  if (!order) {
+    return next(new ErrorHandler("No Order found with this ID", 404));
+  }
+  res.status(200).json({
+    success: true,
+    order,
+  });
+});
 
-    res.status(200).json({
-        success:true,
-        orders
-    })
-})
+exports.getAllOrders = catchAsyncErrors(async (req, res, next) => {
+  const orders = await Order.find({ user: req.user._id });
+
+  res.status(200).json({
+    success: true,
+    orders,
+  });
+});

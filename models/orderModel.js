@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema(
   {
+    transport: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Transport",
+      require: true,
+    },
     addressInfo: {
       address: {
         type: String,
@@ -24,27 +29,25 @@ const orderSchema = new mongoose.Schema(
         required: true,
       },
     },
-    orderItems: [
-      {
-        name: {
-          type: String,
-          required: true,
-        },
-        price: {
-          type: String,
-          required: true,
-        },
-        quantity: {
-          type: String,
-          required: true,
-        },
-        transport: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Transport",
-          require: true,
-        },
+    orderItem: {
+      name: {
+        type: String,
+        required: true,
       },
-    ],
+      price: {
+        type: String,
+        required: true,
+      },
+      quantity: {
+        type: String,
+        required: true,
+      },
+      transport: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Transport",
+        require: true,
+      },
+    },
     paymentInfo: {
       id: {
         type: String,
@@ -81,7 +84,7 @@ const orderSchema = new mongoose.Schema(
     orderStatus: {
       type: String,
       required: true,
-      default: "proccessinf",
+      default: "proccessing",
     },
   },
 

@@ -68,11 +68,11 @@ const userSchema = new mongoose.Schema(
     },
     plateNumber: {
       type: String,
-      required: [true, "Please Input Vechicle Plate Number"],
+     
     },
     licenceNumber: {
       type: Number,
-      required: [true, "Please Input Your Driver Licence Number"],
+    
     },
     licenceFront: {
       type: String,
