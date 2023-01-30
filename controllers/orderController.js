@@ -1,6 +1,7 @@
 const Order = require("../models/orderModel");
 const Transport = require("../models/transportModel");
 const User = require("../models/userModel");
+const sendEmail = require("../utlis/sendMail");
 const ApiFeatures = require("../utils/apiFeatures");
 const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
@@ -35,6 +36,14 @@ exports.newOrder = catchAsyncErrors(async (req, res, next) => {
 
     await updateSeat(item.transport, item.quantity);
   }
+
+  message = `Your Trip with id: ${order._id}, Has been created successfully\nBelow are your trip informations\nPrice: ${order.price}\nTax: ${order.taxPrice}\nTotal: ${order.totalPrice}`;
+
+  await sendEmail({
+    email: req.user.email,
+    subject: "Trip Created Succesfully",
+    html: message,
+  });
 
   res.status(201).json({
     success: true,

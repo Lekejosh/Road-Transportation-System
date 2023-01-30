@@ -8,19 +8,19 @@ const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 exports.createTransport = catchAsyncErrors(async (req, res, next) => {
   const { totalSeat, plateNumber, vehicle, departureState, price } = req.body;
 
-   const startOfToday = new Date().setHours(0, 0, 0, 0);
-   const startOfTomorrow = new Date().setHours(24, 0, 0, 0);
+  const startOfToday = new Date().setHours(0, 0, 0, 0);
+  const startOfTomorrow = new Date().setHours(24, 0, 0, 0);
 
-    const transport = await Transport.findOne({
-      driver: req.user.id,
-      createdAt: { $gte: startOfToday, $lt: startOfTomorrow },
-    });
+  const transport = await Transport.findOne({
+    driver: req.user.id,
+    createdAt: { $gte: startOfToday, $lt: startOfTomorrow },
+  });
 
-    if (transport) {
-      return next(
-        new ErrorHandler("Oga, How many Trip you wan take today?👀", 400)
-      );
-    }
+  if (transport) {
+    return next(
+      new ErrorHandler("Oga, How many Trip you wan take today?👀", 400)
+    );
+  }
   const newTransport = await Transport.create({
     totalSeat,
     plateNumber,
@@ -94,13 +94,11 @@ exports.isComplete = catchAsyncErrors(async (req, res, next) => {
     "firstName lastName"
   );
 
-  const message = `Your trip with id ${id} has been completed. Here are the details: 
-
-Driver Name: ${driver.firstName} ${driver.lastName}
-Plate Number: ${transport.plateNumber}
-Departure State: ${transport.departureState}
-Arrival State: ${transport.arrivalState}
-
+  const message = `Your trip with id ${id} has been completed. Here are the details:\n
+Driver Name: ${driver.firstName} ${driver.lastName}\n
+Plate Number: ${transport.plateNumber}\n
+Departure State: ${transport.departureState}\n
+Arrival State: ${transport.arrivalState}\n\n
 Did you enjoy your trip? <a href='${req.protocol}://${req.get(
     "host"
   )}/api/v1/driver/review?q=${
@@ -108,7 +106,7 @@ Did you enjoy your trip? <a href='${req.protocol}://${req.get(
   }'>Click here</a> to provide a review.`;
 
   await Order.updateMany({ transport: id }, { orderStatus: "Completed" });
-  for (let i = 0; i < orders.length; i++) {
+  for (let i = 0; i <= orders.length; i++) {
     await sendEmail({
       email: orders[i].user.email,
       subject: "Trip Completed",

@@ -12,8 +12,9 @@ const transportSchema = new mongoose.Schema(
     totalSeat: {
       type: Number,
     },
-    totalSeatAvailable: {
+    bookedSeat: {
       type: Number,
+      default:0
     },
     location: {
       type: String,
