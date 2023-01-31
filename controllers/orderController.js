@@ -56,13 +56,13 @@ exports.newOrder = catchAsyncErrors(async (req, res, next) => {
   if (paymentInfo.status === "paid") {
     let item = order.orderItem;
 
-    await updateSeat(item.transport, item.quantity);
+    await updateSeat(order.transport, item.quantity);
   }
 
-  const seatNo = transport.bookedSeat - transport.totalSeat;
+  const seatNo = transport.bookedSeat - transport.totalSeat + 1;
 
   await Order.updateOne(
-    { user: req.user.id, date: { $gte: startOfToday, $lt: startOfTomorrow } },
+    { _id: order._id, date: { $gte: startOfToday, $lt: startOfTomorrow } },
     { seatNo: seatNo }
   );
 

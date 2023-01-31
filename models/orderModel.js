@@ -42,11 +42,6 @@ const orderSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
-      transport: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Transport",
-        require: true,
-      },
     },
     paymentInfo: {
       id: {
