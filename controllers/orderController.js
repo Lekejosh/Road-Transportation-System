@@ -6,8 +6,6 @@ const ApiFeatures = require("../utils/apiFeatures");
 const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 
-//TODO: Send mail to user on order creation
-//TODO: Give User Seat Number payment
 //TODO: Create a service worker that sends mail to users of a paid transport 30mins before the start of trip
 
 exports.newOrder = catchAsyncErrors(async (req, res, next) => {
