@@ -1,15 +1,18 @@
 const Order = require("../models/orderModel");
 const Transport = require("../models/transportModel");
 const User = require("../models/userModel");
-const sendEmail = require("../utlis/sendMail");
+const sendEmail = require("../utils/sendMail");
 const ApiFeatures = require("../utils/apiFeatures");
 const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 
 //TODO: Send mail to user on order creation
 //TODO: Give User Seat Number payment
+//TODO: Create a service worker that sends mail to users of a paid transport 30mins before the start of trip
 
 exports.newOrder = catchAsyncErrors(async (req, res, next) => {
+  const startOfToday = new Date().setHours(0, 0, 0, 0);
+  const startOfTomorrow = new Date().setHours(24, 0, 0, 0);
   const { id } = req.query;
   const {
     addressInfo,
@@ -19,6 +22,25 @@ exports.newOrder = catchAsyncErrors(async (req, res, next) => {
     taxPrice,
     totalPrice,
   } = req.body;
+
+  const transport = await Transport.findById(id);
+
+  if (transport.isComplete === true) {
+    return next(
+      new ErrorHandler(
+        "You want to book and an already completed ride?😂😂😂",
+        400
+      )
+    );
+  }
+  if (transport.totalSeat === 0) {
+    return next(
+      new ErrorHandler(
+        "Ride already filled up🤨...Check and Book another one",
+        400
+      )
+    );
+  }
 
   const order = await Order.create({
     addressInfo,
@@ -37,7 +59,14 @@ exports.newOrder = catchAsyncErrors(async (req, res, next) => {
     await updateSeat(item.transport, item.quantity);
   }
 
-  message = `Your Trip with id: ${order._id}, Has been created successfully\nBelow are your trip informations\nPrice: ${order.price}\nTax: ${order.taxPrice}\nTotal: ${order.totalPrice}`;
+  const seatNo = transport.bookedSeat - transport.totalSeat;
+
+  await Order.updateOne(
+    { user: req.user.id, date: { $gte: startOfToday, $lt: startOfTomorrow } },
+    { seatNo: seatNo }
+  );
+
+  message = `Your Trip with id: ${order._id}, Has been created successfully\nBelow are your trip informations\nPrice: ${transport.price}\nTax: ${order.taxPrice}\nTotal: ${order.totalPrice}\n Seat Number: ${seatNo}`;
 
   await sendEmail({
     email: req.user.email,
@@ -85,5 +114,5 @@ exports.getAllOrders = catchAsyncErrors(async (req, res, next) => {
 async function updateSeat(id, quantity) {
   const transport = await Transport.findById(id);
   transport.totalSeat -= quantity;
-  transport.save({ validateBeforeSave: false });
+  await transport.save({ validateBeforeSave: false });
 }

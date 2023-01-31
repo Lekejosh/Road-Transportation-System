@@ -23,6 +23,7 @@ exports.createTransport = catchAsyncErrors(async (req, res, next) => {
   }
   const newTransport = await Transport.create({
     totalSeat,
+    bookedSeat: totalSeat,
     plateNumber,
     vehicle,
     departureState,
