@@ -60,12 +60,6 @@ exports.getTripByState = catchAsyncErrors(async (req, res, next) => {
   const { departure, arrival } = req.query;
   const startOfToday = new Date().setHours(0, 0, 0, 0);
   const startOfTomorrow = new Date().setHours(24, 0, 0, 0);
-  // const transport = await Transport.find({
-  //   date: { $gte: startOfToday, $lt: startOfTomorrow },
-  //   departureState: departure,
-  //   arrivalState: arrival,
-  //   isComplete: false,
-  // }).populate("driver", "email firstName lastName");
   const apiFeature = new ApiFeatures(
     Transport.find({
       date: { $gte: startOfToday, $lt: startOfTomorrow },
@@ -91,7 +85,7 @@ exports.availableTrip = catchAsyncErrors(async (req, res, next) => {
     Transport.find({
       date: { $gte: startOfToday, $lt: startOfTomorrow },
       isComplete: false,
-    }),
+    }).populate("driver", "email firstName lastName"),
     req.query
   ).pagination(resultPerPage);
   const transports = await apiFeature.query;
