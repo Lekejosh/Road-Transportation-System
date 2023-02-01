@@ -3,6 +3,7 @@ const User = require("../models/userModel");
 const Order = require("../models/orderModel");
 const ErrorHandler = require("../utils/errorHandler");
 const sendEmail = require("../utils/sendMail");
+const ApiFeatures = require("../utils/apiFeatures");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 
 exports.createTransport = catchAsyncErrors(async (req, res, next) => {
@@ -42,38 +43,62 @@ exports.tripUpdate = catchAsyncErrors(async (req, res, next) => {
     departureTime: req.body.date + "T" + req.body.time,
   };
 
-  const transport = await Transport.findById(req.query.id);
+  const transport = await Transport.findByIdAndUpdate(req.query.id, trip, {
+    new: true,
+    runValidators: true,
+  });
 
   if (!transport) {
     return next(new ErrorHandler("Trip with That ID does not exist", 400));
   }
 
-  transport.updateOne(trip)
-  transport.save()
-  res.status(200).json({ success: true });
+  res.status(200).json({ success: true, transport });
 });
 
 exports.getTripByState = catchAsyncErrors(async (req, res, next) => {
+  const resultPerPage = 5;
   const { departure, arrival } = req.query;
   const startOfToday = new Date().setHours(0, 0, 0, 0);
   const startOfTomorrow = new Date().setHours(24, 0, 0, 0);
-  const transport = await Transport.find({
-    date: { $gte: startOfToday, $lt: startOfTomorrow },
-    departureState: departure,
-    arrivalState: arrival,
-    isComplete: false,
-  }).populate("driver", "email firstName lastName");
-
-  res.status(200).json({ success: true, transport });
+  // const transport = await Transport.find({
+  //   date: { $gte: startOfToday, $lt: startOfTomorrow },
+  //   departureState: departure,
+  //   arrivalState: arrival,
+  //   isComplete: false,
+  // }).populate("driver", "email firstName lastName");
+  const apiFeature = new ApiFeatures(
+    Transport.find({
+      date: { $gte: startOfToday, $lt: startOfTomorrow },
+      departureState: departure,
+      arrivalState: arrival,
+      isComplete: false,
+    }).populate("driver", "email firstName lastName"),
+    req.query
+  ).pagination(resultPerPage);
+  const transports = await apiFeature.query;
+  if (transports.length == 0) {
+    return next(new ErrorHandler("Nothing dey again", 400));
+  }
+  res.status(200).json({ success: true, transports });
 });
 
 exports.availableTrip = catchAsyncErrors(async (req, res, next) => {
+  const resultPerPage = 5;
   const startOfToday = new Date().setHours(0, 0, 0, 0);
-  const startOfTomorrow = new Date().setHours(24, 0, 0, 0); 
+  const startOfTomorrow = new Date().setHours(24, 0, 0, 0);
 
-  const transport = Transport.find({isComplete:false});
-
-  res.status(200).json({ success: true, transport });
+  const apiFeature = new ApiFeatures(
+    Transport.find({
+      date: { $gte: startOfToday, $lt: startOfTomorrow },
+      isComplete: false,
+    }),
+    req.query
+  ).pagination(resultPerPage);
+  const transports = await apiFeature.query;
+  if (transports.length == 0) {
+    return next(new ErrorHandler("Nothing dey again", 400));
+  }
+  res.status(200).json({ success: true, transports });
 });
 
 exports.isComplete = catchAsyncErrors(async (req, res, next) => {

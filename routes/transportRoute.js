@@ -18,7 +18,7 @@ router
 router
   .route("/trip/update")
   .put(isAuthenticatedUser, authorizeRole("driver"), tripUpdate);
-router.route("/all").get(isAuthenticatedUser, getTripByState);
+router.route("/state").get(isAuthenticatedUser, getTripByState);
 router
   .route("/trip/complete/:id")
   .get(isAuthenticatedUser, authorizeRole("driver"), isComplete);
