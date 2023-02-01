@@ -5,8 +5,6 @@ const ErrorHandler = require("../utils/errorHandler");
 const sendEmail = require("../utils/sendMail");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 
-//TODO: Get all trip for the available for the day
-
 exports.createTransport = catchAsyncErrors(async (req, res, next) => {
   const { totalSeat, plateNumber, vehicle, departureState, price } = req.body;
 
@@ -41,14 +39,17 @@ exports.tripUpdate = catchAsyncErrors(async (req, res, next) => {
   const trip = {
     departureState: req.body.departureState,
     arrivalState: req.body.arrivalState,
-    depatureTime: Date.now(),
+    departureTime: req.body.date + "T" + req.body.time,
   };
 
-  const transport = await Transport.findByIdAndUpdate(req.query.id, trip);
+  const transport = await Transport.findById(req.query.id);
 
   if (!transport) {
-    return next(new ErrorHandler("Internal Server Error", 500));
+    return next(new ErrorHandler("Trip with That ID does not exist", 400));
   }
+
+  transport.updateOne(trip)
+  transport.save()
   res.status(200).json({ success: true });
 });
 
@@ -65,6 +66,16 @@ exports.getTripByState = catchAsyncErrors(async (req, res, next) => {
 
   res.status(200).json({ success: true, transport });
 });
+
+exports.availableTrip = catchAsyncErrors(async (req, res, next) => {
+  const startOfToday = new Date().setHours(0, 0, 0, 0);
+  const startOfTomorrow = new Date().setHours(24, 0, 0, 0); 
+
+  const transport = Transport.find({isComplete:false});
+
+  res.status(200).json({ success: true, transport });
+});
+
 exports.isComplete = catchAsyncErrors(async (req, res, next) => {
   const { complete } = req.query;
   const { id } = req.params;

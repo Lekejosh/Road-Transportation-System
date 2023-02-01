@@ -1,56 +1,51 @@
 const mongoose = require("mongoose");
 
-const transportSchema = new mongoose.Schema(
-  {
-    driver: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-    date: {
-      type: Date,
-    },
-    totalSeat: {
-      type: Number,
-    },
-    bookedSeat: {
-      type: Number,
-      default:0
-    },
-    location: {
-      type: String,
-    },
-    vehicleName: {
-      type: String,
-    },
-    departureTime: {
-      type: Date,
-    },
-    plateNumber: {
-      type: String,
-    },
-    departureState: {
-      type: String,
-    },
-    arrivalState: {
-      type: String,
-    },
-    arrivalTime: {
-      type: Date,
-    },
-    vehicleType: {
-      type: String,
-    },
-    price: {
-      type: String,
-    },
-    isComplete: {
-      type: Boolean,
-      default: "false",
-    },
+const transportSchema = new mongoose.Schema({
+  driver: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
   },
-  {
-    timestamps: true,
-  }
-);
+  date: {
+    type: Date,
+  },
+  totalSeat: {
+    type: Number,
+  },
+  bookedSeat: {
+    type: Number,
+    default: 0,
+  },
+  location: {
+    type: String,
+  },
+  vehicleName: {
+    type: String,
+  },
+  departureTime: {
+    type: Date,
+  },
+  plateNumber: {
+    type: String,
+  },
+  departureState: {
+    type: String,
+  },
+  arrivalState: {
+    type: String,
+  },
+  arrivalTime: {
+    type: Date,
+  },
+  vehicleType: {
+    type: String,
+  },
+  price: {
+    type: String,
+  },
+  isComplete: {
+    type: Boolean,
+    default: "false",
+  },
+});
 
 module.exports = mongoose.model("Transport", transportSchema);

@@ -6,13 +6,14 @@ const {
   createTransport,
   getTripByState,
   isComplete,
+  availableTrip,
 } = require("../controllers/transportController");
 
 const { isAuthenticatedUser, authorizeRole } = require("../middlewares/auth");
 
 router
   .route("/create")
-  .put(isAuthenticatedUser, authorizeRole("driver"), createTransport);
+  .post(isAuthenticatedUser, authorizeRole("driver"), createTransport);
 
 router
   .route("/trip/update")
@@ -21,5 +22,7 @@ router.route("/all").get(isAuthenticatedUser, getTripByState);
 router
   .route("/trip/complete/:id")
   .get(isAuthenticatedUser, authorizeRole("driver"), isComplete);
+
+router.route("/all").get(availableTrip);
 
 module.exports = router;
