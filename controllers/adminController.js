@@ -4,6 +4,8 @@ const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const ApiFeatures = require("../utils/apiFeatures");
 
+//TODO: Work on search and filter
+
 // Users
 exports.getAllUsers = catchAsyncErrors(async (req, res) => {
   const resultPerPage = 5;
