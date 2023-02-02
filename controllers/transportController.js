@@ -40,14 +40,13 @@ exports.tripUpdate = catchAsyncErrors(async (req, res, next) => {
   const trip = {
     departureState: req.body.departureState,
     arrivalState: req.body.arrivalState,
-    departureTime: req.body.date + "T" + req.body.time,
+    // departureTime: req.body.date + "T" + req.body.time,
   };
 
   const transport = await Transport.findByIdAndUpdate(req.query.id, trip, {
     new: true,
     runValidators: true,
   });
-
   if (!transport) {
     return next(new ErrorHandler("Trip with That ID does not exist", 400));
   }

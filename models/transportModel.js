@@ -46,6 +46,9 @@ const transportSchema = new mongoose.Schema({
     type: Boolean,
     default: "false",
   },
+  departureTime: {
+    type: Date,
+  },
 });
 
 module.exports = mongoose.model("Transport", transportSchema);
