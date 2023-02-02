@@ -7,6 +7,7 @@ const {
   getTripByState,
   isComplete,
   availableTrip,
+  deleteTransport,
 } = require("../controllers/transportController");
 
 const { isAuthenticatedUser, authorizeRole } = require("../middlewares/auth");
@@ -24,5 +25,8 @@ router
   .get(isAuthenticatedUser, authorizeRole("driver"), isComplete);
 
 router.route("/all").get(availableTrip);
+router
+  .route("/delete/:id")
+  .delete(isAuthenticatedUser, authorizeRole("driver"), deleteTransport);
 
 module.exports = router;

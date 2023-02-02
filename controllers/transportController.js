@@ -148,3 +148,14 @@ Did you enjoy your trip? <a href='${req.protocol}://${req.get(
 
   res.status(200).json({ success: true });
 });
+
+exports.deleteTransport = catchAsyncErrors(async (req, res, next) => {
+  const transport = await Transport.findById(req.params.id);
+  if (!transport) {
+    return next(new ErrorHandler("Trip Not Found", 404));
+  }
+  await Order.deleteMany({ transport: transport._id, });
+  await transport.remove();
+
+  res.status(200).json({ success: true });
+});
