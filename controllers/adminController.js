@@ -50,6 +50,8 @@ exports.deleteUser = catchAsyncErrors(async (req, res, next) => {
   if (!user) {
     return next(new ErrorHandler(`No User with ${id}`, 400));
   }
+
+  user.remove();
   res.status(200).json({ success: true });
 });
 
