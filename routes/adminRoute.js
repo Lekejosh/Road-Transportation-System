@@ -8,25 +8,55 @@ const {
   updateUser,
   getAllTrips,
   getDailyReport,
+  getSingleTrip,
+  getAllDrivers,
+  getDriver,
+  updateDriver,
+  deleteDriver,
+  getAdmin,
+  deleteAdmin,
+  createAdmin,
+  createUser,
 } = require("../controllers/adminController");
 
 const { isAuthenticatedUser, authorizeRole } = require("../middlewares/auth");
 
 // Users
-router
-  .route("/users")
-  .get(isAuthenticatedUser, getAllUsers);
+router.route('/user-create').post(isAuthenticatedUser,authorizedRole,createUser);
+router.route("/users").get(isAuthenticatedUser, getAllUsers);
 router
   .route("/user/:id")
   .get(isAuthenticatedUser, authorizeRole("admin"), getUser)
   .delete(isAuthenticatedUser, authorizeRole("admin"), deleteUser)
   .patch(isAuthenticatedUser, authorizeRole("admin"), updateUser);
+router
+  .route("/summary")
+  .get(isAuthenticatedUser, authorizeRole("admin"), getDailyReport);
 
-  router.route("/summary").get(isAuthenticatedUser,authorizeRole("admin"), getDailyReport);
+//Driver
+router
+  .route("/drivers")
+  .get(isAuthenticatedUser, authorizeRole("admin"), getAllDrivers);
+router
+  .route("/driver/:id")
+  .get(isAuthenticatedUser, authorizeRole("admin"), getDriver)
+  .patch(isAuthenticatedUser, authorizeRole("admin"), updateDriver)
+  .delete(isAuthenticatedUser, authorizeRole("admin"), deleteDriver);
 
+//Admin
+router.route(/admin/create).post(isAuthenticatedUser,authorizeRole("admin"),createAdmin)
+
+router
+  .route("/admin/find/:id")
+  .get(isAuthenticatedUser, authorizeRole("admin"), getAdmin)
+  .patch(isAuthenticatedUser, authorizeRole("admin"),updateAdmin)
+  .delete(isAuthenticatedUser, authorizeRole("admin"), deleteAdmin);
 // Transport
 router
   .route("/daily")
   .get(isAuthenticatedUser, authorizeRole("admin"), getAllTrips);
+router
+  .route("/trip/:id")
+  .get(isAuthenticatedUser, authorize("admin"), getSingleTrip);
 
 module.exports = router;

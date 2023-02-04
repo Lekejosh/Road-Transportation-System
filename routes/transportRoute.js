@@ -27,6 +27,10 @@ router
 router.route("/all").get(availableTrip);
 router
   .route("/delete/:id")
-  .delete(isAuthenticatedUser, authorizeRole("driver"), deleteTransport);
+  .delete(
+    isAuthenticatedUser,
+    authorizeRole("driver", "admin"),
+    deleteTransport
+  );
 
 module.exports = router;
