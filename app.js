@@ -4,11 +4,14 @@ const errorMiddleware = require("./middlewares/error");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const bodyParser = require("body-parser");
+const checkTrips = require("./middlewares/serviceWorker");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+setInterval(checkTrips, 60 * 1000);
 
 const sessionConfig = {
   secret: "egeGBTCTEcgwrtgc54cg66666666h.b/3/3.b/[g[er2",
