@@ -6,6 +6,8 @@ const sendEmail = require("../utils/sendMail");
 const ApiFeatures = require("../utils/apiFeatures");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 
+//TODO: Test the Mail Service worker
+
 exports.createTransport = catchAsyncErrors(async (req, res, next) => {
   const { totalSeat, plateNumber, vehicle, departureState, price } = req.body;
 
