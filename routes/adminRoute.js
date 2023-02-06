@@ -13,16 +13,18 @@ const {
   getDriver,
   updateDriver,
   deleteDriver,
+  updateAdmin,
   getAdmin,
   deleteAdmin,
   createAdmin,
   createUser,
+  getAllAdmin,
 } = require("../controllers/adminController");
 
 const { isAuthenticatedUser, authorizeRole } = require("../middlewares/auth");
 
 // Users
-router.route('/user-create').post(isAuthenticatedUser,authorizedRole,createUser);
+router.route('/user-create').post(isAuthenticatedUser,authorizeRole("admin"),createUser);
 router.route("/users").get(isAuthenticatedUser, getAllUsers);
 router
   .route("/user/:id")
@@ -44,8 +46,8 @@ router
   .delete(isAuthenticatedUser, authorizeRole("admin"), deleteDriver);
 
 //Admin
-router.route(/admin/create).post(isAuthenticatedUser,authorizeRole("admin"),createAdmin)
-
+router.route("/admin/create").post(isAuthenticatedUser,authorizeRole("admin"),createAdmin)
+router.route("/all/admin").get(isAuthenticatedUser,authorizeRole("admin"),getAllAdmin)
 router
   .route("/admin/find/:id")
   .get(isAuthenticatedUser, authorizeRole("admin"), getAdmin)
@@ -57,6 +59,6 @@ router
   .get(isAuthenticatedUser, authorizeRole("admin"), getAllTrips);
 router
   .route("/trip/:id")
-  .get(isAuthenticatedUser, authorize("admin"), getSingleTrip);
+  .get(isAuthenticatedUser, authorizeRole("admin"), getSingleTrip);
 
 module.exports = router;

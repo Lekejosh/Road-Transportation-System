@@ -16,20 +16,20 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
     email,
     password,
     mobileNumber,
-    orginState,
+    originState,
     localGovernment,
     nextOfKin,
     nextOfKinPhoneNumber,
     avatar,
   } = req.body;
 
- await User.create({
+  await User.create({
     firstName,
     lastName,
     email,
     password,
     mobileNumber,
-    orginState,
+    originState,
     localGovernment,
     nextOfKin,
     nextOfKinPhoneNumber,
@@ -43,7 +43,7 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
 
 exports.getAllUsers = catchAsyncErrors(async (req, res) => {
   const resultPerPage = 5;
-  const apiFeature = new ApiFeatures(User.find(), req.query)
+  const apiFeature = new ApiFeatures(User.find({ role: "user" }), req.query)
     .search()
     .filter()
     .pagination(resultPerPage);
@@ -151,20 +151,20 @@ exports.createAdmin = catchAsyncErrors(async (req, res, next) => {
     email,
     password,
     mobileNumber,
-    orginState,
+    originState,
     localGovernment,
     nextOfKin,
     nextOfKinPhoneNumber,
     avatar,
   } = req.body;
 
-   await User.create({
+  await User.create({
     firstName,
     lastName,
     email,
     password,
     mobileNumber,
-    orginState,
+    originState,
     localGovernment,
     nextOfKin,
     nextOfKinPhoneNumber,
@@ -176,30 +176,29 @@ exports.createAdmin = catchAsyncErrors(async (req, res, next) => {
   res.status(200).json({ success: true });
 });
 
-exports.getAllAdmin = catchAsyncErrors(async(req,res,next)=>{
-   const resultPerPage = 5;
+exports.getAllAdmin = catchAsyncErrors(async (req, res, next) => {
+  const resultPerPage = 5;
   const apiFeature = new ApiFeatures(User.find({ role: "admin" }), req.query)
     .search()
     .filter()
     .pagination(resultPerPage);
   const admin = await apiFeature.query;
 
-  if(!admin){
-    return next(new ErrorHandler("No Admin Found",400))
+  if (!admin) {
+    return next(new ErrorHandler("No Admin Found", 400));
   }
 
-  res.status(200).json({success:true,admin})
-})
+  res.status(200).json({ success: true, admin });
+});
 
-exports.getAdmin = catchAsyncErrors(async(req,res,next)=>{
-  const admin = await User.findOne({_id: req.params.id,role:"admin"})
+exports.getAdmin = catchAsyncErrors(async (req, res, next) => {
+  const admin = await User.findOne({ _id: req.params.id, role: "admin" });
 
-  
-  if(!admin){
-    return next(new ErrorHandler("No Admin Found",400))
+  if (!admin) {
+    return next(new ErrorHandler("No Admin Found", 400));
   }
-  res.status(200).json({success:true,admin})
-})
+  res.status(200).json({ success: true, admin });
+});
 exports.deleteAdmin = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.params;
   const admin = await User.findOne({ _id: id, role: "admin" });
