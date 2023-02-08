@@ -28,7 +28,7 @@ async function checkTrips() {
     );
     const minutesLeft = Math.floor((transport.departureTime - now) / 1000 / 60);
     let originalDepartureTime = transport.departureTime;
-    originalDepartureTime.setHours(originalDepartureTime.getHours() + 1);
+    originalDepartureTime.setHours(originalDepartureTime.getHours());
     let realDateAndTimeInGMT = originalDepartureTime.toGMTString();
     await sendEmail({
       email: `${trip.user.firstName} <${trip.user.email}>`,
