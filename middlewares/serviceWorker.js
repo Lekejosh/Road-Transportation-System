@@ -26,10 +26,14 @@ async function checkTrips() {
     const transport = transports.find((trans) =>
       trans._id.equals(trip.transport)
     );
+    const minutesLeft = Math.floor((transport.departureTime - now) / 1000 / 60);
+    let originalDepartureTime = transport.departureTime;
+    originalDepartureTime.setHours(originalDepartureTime.getHours() + 1);
+    let realDateAndTimeInGMT = originalDepartureTime.toGMTString();
     await sendEmail({
       email: `${trip.user.firstName} <${trip.user.email}>`,
       subject: `Upcoming Trip, Id: ${transport._id}`,
-      html: `${trip.user.firstName}, Don't forget, your trip "${transport._id}" is starting in 30 minutes!`,
+      html: `${trip.user.firstName}, Don't forget, your trip "${transport._id}" is starting in <b>${minutesLeft} minutes!</b>... Departure Time <b>${realDateAndTimeInGMT}</b>`,
     });
     trip.reminded = true;
     await trip.save();
