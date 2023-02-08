@@ -39,10 +39,11 @@ exports.createTransport = catchAsyncErrors(async (req, res, next) => {
 });
 
 exports.tripUpdate = catchAsyncErrors(async (req, res, next) => {
+  console.log(Date.now())
   const trip = {
     departureState: req.body.departureState,
     arrivalState: req.body.arrivalState,
-    // departureTime: req.body.date + "T" + req.body.time,
+    departureTime: req.body.date + "T" + req.body.time,
   };
 
   const transport = await Transport.findByIdAndUpdate(req.query.id, trip, {

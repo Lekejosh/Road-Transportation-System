@@ -81,6 +81,10 @@ const orderSchema = new mongoose.Schema(
       required: true,
       default: "proccessing",
     },
+    reminded: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   {
