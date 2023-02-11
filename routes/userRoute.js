@@ -10,12 +10,11 @@ const {
   forgotPassword,
   resetPassword,
   updatePassword,
- 
 } = require("../controllers/userController");
-
+const upload = require("../utils/multer");
 const { isAuthenticatedUser } = require("../middlewares/auth");
 
-router.route("/register").post(registerUser);
+router.route("/register").post(upload.single("avatar"), registerUser);
 router.route("/login").post(loginUser);
 router
   .route("/email/verification")
@@ -29,7 +28,5 @@ router
 router.route("/password/forgot").post(forgotPassword);
 
 router.route("/password/reset/:token").put(resetPassword);
-
-
 
 module.exports = router;

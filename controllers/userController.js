@@ -12,6 +12,11 @@ const { generateOTP } = require("../utils/otpGenerator");
 //TODO: Driver license Front & Back Upload, Using Cloudinary and Multer
 
 exports.registerUser = catchAsyncErrors(async (req, res, next) => {
+  const myCloud = await cloudinary.v2.uploader.upload(req.file.path, {
+    folder: "Transport",
+    width: 150,
+    crop: "scale",
+  });
   const {
     firstName,
     lastName,
@@ -34,6 +39,10 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
     nextOfKin,
     nextOfKinPhoneNumber,
     generatedOtp: generateOTP(),
+     avatar: {
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
+      },
   });
 
   try {
