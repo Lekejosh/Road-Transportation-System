@@ -6,6 +6,11 @@ const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const sendToken = require("../utils/jwtToken");
 const { generateOTP } = require("../utils/otpGenerator");
 
+//TODO: install Cloudinary
+//TODO: install Multer
+//TODO: User  Avatar upload using cloudinary and Multer
+//TODO: Driver license Front & Back Upload, Using Cloudinary and Multer
+
 exports.registerUser = catchAsyncErrors(async (req, res, next) => {
   const {
     firstName,

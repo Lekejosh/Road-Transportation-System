@@ -74,11 +74,17 @@ const userSchema = new mongoose.Schema(
       type: Number,
     
     },
+    carImage:{
+      public_id:{type:String},
+      url:{type:String}
+    }
     licenceFront: {
-      type: String,
+      public_id:{type:String},
+      url:{type:String}
     },
     licenceBack: {
-      type: String,
+      public_id:{type:String},
+      url:{type:String}
     },
 
     lastLoggedIn: {
@@ -117,7 +123,8 @@ const userSchema = new mongoose.Schema(
       default: 0,
     },
     avatar: {
-      type: String,
+      public_id:{type:String},
+      url:{type:String}
     },
     role: {
       type: String,
