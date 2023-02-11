@@ -5,6 +5,8 @@ const sendEmail = require("../utils/sendMail");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const sendToken = require("../utils/jwtToken");
 const { generateOTP } = require("../utils/otpGenerator");
+const cloudinary = require("cloudinary");
+const upload = require("../utils/multer");
 
 //TODO: install Cloudinary
 //TODO: install Multer

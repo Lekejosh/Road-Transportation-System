@@ -77,7 +77,7 @@ const userSchema = new mongoose.Schema(
     carImage:{
       public_id:{type:String},
       url:{type:String}
-    }
+    },
     licenceFront: {
       public_id:{type:String},
       url:{type:String}

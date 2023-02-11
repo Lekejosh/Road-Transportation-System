@@ -1,5 +1,6 @@
 const app = require("./app");
 const mongoose = require("mongoose");
+const cloudinary= require("cloudinary")
 require("dotenv").config();
 
 process.on("uncaughtException", (err) => {
