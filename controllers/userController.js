@@ -93,6 +93,9 @@ exports.resendOtp = catchAsyncErrors(async (req, res, next) => {
   if (!user) {
     return next(new ErrorHandler("User Not found", 400));
   }
+  if (user.isVerified){
+    return next(new ErrorHandler("Email Address already Verified",400))
+  } 
   user.generatedOtp = generateOTP();
   await user.save();
   try {
@@ -109,7 +112,7 @@ exports.resendOtp = catchAsyncErrors(async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
     return next(new ErrorHandler(err.message, 500));
   }
-  res.status(200).json({ success: true, user });
+  res.status(200).json({ success: true });
 });
 
 exports.loginUser = catchAsyncErrors(async (req, res, next) => {
