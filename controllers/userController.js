@@ -85,7 +85,7 @@ exports.verifyEmail = catchAsyncErrors(async (req, res, next) => {
     html: "Account Verified Successfully",
   });
 
-  res.status(200).json({ success: true, user });
+  res.status(200).json({ success: true });
 });
 
 exports.resendOtp = catchAsyncErrors(async (req, res, next) => {
@@ -181,7 +181,7 @@ exports.updatePassword = catchAsyncErrors(async (req, res, next) => {
   const isPasswordMatched = await user.comparePassword(req.body.oldPassword);
 
   if (!isPasswordMatched) {
-    return next(new ErrorHandler("Incorrect Old Password"));
+    return next(new ErrorHandler("Incorrect Old Password",400));
   }
 
   if (req.body.newPassword != req.body.confirmPassword) {
@@ -228,7 +228,7 @@ exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
     return next(new ErrorHandler(error.message, 500));
   }
-  res.status(200).json({ success: true });
+  res.status(200).json({ success: true, linkSent:"Reset Link Sent, Check your Mail!" });
 });
 
 exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
