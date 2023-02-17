@@ -142,7 +142,7 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Invalid password", 401));
   }
   if (!user.isVerified) {
-    return next(new ErrorHandler("Please Verify your Email address", 403));
+    return next(new ErrorHandler("Unverified Email Address🤨, Please Verify", 403));
   }
   user.lastLoggedIn = Date.now();
   await user.save();
