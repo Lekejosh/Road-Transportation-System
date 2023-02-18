@@ -29,7 +29,7 @@ services:
       CLOUDINARY_APIKEY: ${CLOUDINARY_APIKEY}
       CLOUDINARY_SECRET: ${CLOUDINARY_SECRET}
     depends_on:
-      - db
+      - mongo_db
     
 volumes: 
   mongo_db: {}
