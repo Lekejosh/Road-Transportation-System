@@ -41,10 +41,10 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
     nextOfKin,
     nextOfKinPhoneNumber,
     generatedOtp: generateOTP(),
-     avatar: {
-        public_id: myCloud.public_id,
-        url: myCloud.secure_url,
-      },
+    avatar: {
+      public_id: myCloud.public_id,
+      url: myCloud.secure_url,
+    },
   });
 
   try {
@@ -93,9 +93,9 @@ exports.resendOtp = catchAsyncErrors(async (req, res, next) => {
   if (!user) {
     return next(new ErrorHandler("User Not found", 400));
   }
-  if (user.isVerified){
-    return next(new ErrorHandler("Email Address already Verified",400))
-  } 
+  if (user.isVerified) {
+    return next(new ErrorHandler("Email Address already Verified", 400));
+  }
   user.generatedOtp = generateOTP();
   await user.save();
   try {
@@ -145,7 +145,9 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Invalid password", 401));
   }
   if (!user.isVerified) {
-    return next(new ErrorHandler("Unverified Email Address🤨, Please Verify", 403));
+    return next(
+      new ErrorHandler("Unverified Email Address🤨, Please Verify", 403)
+    );
   }
   user.lastLoggedIn = Date.now();
   await user.save();
@@ -181,7 +183,7 @@ exports.updatePassword = catchAsyncErrors(async (req, res, next) => {
   const isPasswordMatched = await user.comparePassword(req.body.oldPassword);
 
   if (!isPasswordMatched) {
-    return next(new ErrorHandler("Incorrect Old Password",400));
+    return next(new ErrorHandler("Incorrect Old Password", 400));
   }
 
   if (req.body.newPassword != req.body.confirmPassword) {
@@ -228,7 +230,9 @@ exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
     return next(new ErrorHandler(error.message, 500));
   }
-  res.status(200).json({ success: true, linkSent:"Reset Link Sent, Check your Mail!" });
+  res
+    .status(200)
+    .json({ success: true, message: "Reset Link Sent, Check your Mail!" });
 });
 
 exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
@@ -269,7 +273,7 @@ exports.registerDriver = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("User does not exist"));
   }
   const user = await User.create(req.user.id, driverDetails);
-  res.status(200).json({success:true, user})
+  res.status(200).json({ success: true, user });
 });
 
 exports.findDriver = catchAsyncErrors(async (req, res, next) => {
@@ -289,7 +293,6 @@ exports.findOneDriver = catchAsyncErrors(async (req, res, next) => {
   }
   res.status(200).json({ success: true, driver });
 });
-
 
 exports.createDriverReview = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.query;
@@ -336,4 +339,3 @@ exports.createDriverReview = catchAsyncErrors(async (req, res, next) => {
     success: true,
   });
 });
-
