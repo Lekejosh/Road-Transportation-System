@@ -13,21 +13,8 @@ services:
     build: .
     ports:
       - "4000:3000"
-    environment:
-      JWT_EXPIRE: ${JWT_EXPIRE}
-      JWT_SECRET: ${JWT_SECRET}
-      PORT: 4000
-      DB_URI: mongodb://mongo_db:27017
-      DB_NAME: reservation
-      COOKIE_EXPIRE: ${COOKIE_EXPIRE}
-      SMPT_SERVICE: ${SMPT_SERVICE}
-      SMPT_HOST: ${SMPT_HOST}
-      SMPT_PORT: ${SMPT_PORT}
-      SMPT_MAIL: ${SMPT_MAIL}
-      SMPT_PASSWORD: ${SMPT_PASSWORD}
-      CLOUDINARY_NAME: ${CLOUDINARY_NAME}
-      CLOUDINARY_APIKEY: ${CLOUDINARY_APIKEY}
-      CLOUDINARY_SECRET: ${CLOUDINARY_SECRET}
+    env_file:
+      - .env
     depends_on:
       - mongo_db
     
