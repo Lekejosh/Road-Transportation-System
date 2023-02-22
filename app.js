@@ -32,10 +32,9 @@ const order = require("./routes/orderRoute");
 const admin = require("./routes/adminRoute");
 
 // Routes
-app.get("/", (req, res) => {
-  
-  res.status(200).send("Welcome");
-});
+app.get("/",(req,res)=>{
+  res.json({req})
+})
 app.use("/api/v1/user", user);
 app.use("/api/v1/driver", driver);
 app.use("/api/v1/transport", transport);

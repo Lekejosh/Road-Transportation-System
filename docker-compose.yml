@@ -1,22 +1,37 @@
 version: "3.9"
 services:
-  
   mongo_db:
     container_name: db_container
     image: mongo:latest
     restart: always
     volumes:
       - mongo_db:/data/db
-    
+
   # Node Api service
   api:
     build: .
     ports:
-      - "4000:3000"
-    env_file:
-      - .env
+      - "80:4000"
+    env_file: .env
+    environment:
+      JWT_EXPIRE: ${JWT_EXPIRE}
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: 4000
+      DB_URI: mongodb://mongo_db:27017
+      DB_NAME: reservation
+      COOKIE_EXPIRE: ${COOKIE_EXPIRE}
+      SMPT_SERVICE: ${SMPT_SERVICE}
+      SMPT_HOST: ${SMPT_HOST}
+      SMPT_PORT: ${SMPT_PORT}
+      SMPT_MAIL: ${SMPT_MAIL}
+      SMPT_PASSWORD: ${SMPT_PASSWORD}
+      CLOUDINARY_NAME: ${CLOUDINARY_NAME}
+      CLOUDINARY_APIKEY: ${CLOUDINARY_APIKEY}
+      CLOUDINARY_SECRET: ${CLOUDINARY_SECRET}
     depends_on:
       - mongo_db
-    
-volumes: 
+    links: 
+    - mongo_db
+
+volumes:
   mongo_db: {}

@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const {
+  welcome,
   registerUser,
   loginUser,
   verifyEmail,
@@ -13,7 +14,7 @@ const {
 } = require("../controllers/userController");
 const upload = require("../utils/multer");
 const { isAuthenticatedUser } = require("../middlewares/auth");
-
+router.route("/").get(welcome)
 router.route("/register").post(upload.single("avatar"), registerUser);
 router.route("/login").post(loginUser);
 router
