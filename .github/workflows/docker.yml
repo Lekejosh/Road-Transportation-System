@@ -18,7 +18,7 @@ jobs:
           docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
       - name: docker build mongodb
         run: |
-          docker build ./mongo_db -t mongo:latest
+          docker build mongo:latest
       - name: docker build nodejs api
         run: |
           docker build ./api -t lekejosh/api
@@ -26,3 +26,32 @@ jobs:
         run: |
           docker push mongo:latest
           docker push lekejosh/api
+
+# name: Build and push Docker images
+
+# on:
+#   push:
+#     branches:
+#       - master
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
+
+#       - name: Build and push Docker images
+#         uses: docker/compose-action@v2
+#         with:
+#           compose-file: docker-compose.yml
+#           services: mongo_db,api
+#           build:
+#             context: .
+#           push:
+#             registry: ${{ secrets.REGISTRY }}
+#             username: ${{ secrets.REGISTRY_USERNAME }}
+#             password: ${{ secrets.REGISTRY_PASSWORD }}
+#             tags: |
+#               mongo:latest
+#               lekejosh/api:latest
