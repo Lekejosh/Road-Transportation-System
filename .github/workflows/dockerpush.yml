@@ -11,22 +11,38 @@ name: Publish Docker image
 
 on:
   push:
-    branches: 
-      - master 
+    branches:
+      - master
 
 jobs:
   build-images:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
+    env:
+      JWT_EXPIRE: 4d
+      JWT_SECRET: qwertyuiiuyujsnna
+      PORT: 4000
+      PORT_1: 8080
+      DB_URI: "mongodb://mongo_db:27017"
+      DB_NAME: "reservation"
+      COOKIE_EXPIRE: 5
+      SMPT_SERVICE: gmail
+      SMPT_HOST: smtp.gmail.com
+      SMPT_PORT: 587
+      SMPT_MAIL: oluwaronaldo7@gmail.com
+      SMPT_PASSWORD: yhuywfmkieyawbgc
+      CLOUDINARY_NAME: ddkil2k9c
+      CLOUDINARY_APIKEY: 959645165615747
+      CLOUDINARY_SECRET: N0WbbvjSyLI7Ul9Op6PmKrdeyS4
     steps:
-      # Log into github registry    
+      # Log into github registry
       - name: Log into registry
-        run: echo "${{ secrets.SECRET_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin  
-      # Check out the repo    
+        run: echo "${{ secrets.SECRET_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      # Check out the repo
       - name: Checkout
         uses: actions/checkout@v2
-      # Build the images    
-      - name: Build the docker-compose stack  
+      # Build the images
+      - name: Build the docker-compose stack
         run: docker-compose -f docker-compose.yml -f  build
       # List images
       - name: List images
@@ -46,4 +62,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-  
