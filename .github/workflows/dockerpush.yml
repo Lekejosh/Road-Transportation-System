@@ -44,7 +44,7 @@ jobs:
           file: docker-compose.yml
           push: true
           tags: |
-            ghcr.io/lekejosh/road-transportation-system:latest
+            ghcr.io/lekejosh/road-transportation-system:master
             lekejosh/api1:latest
           build-args: |
             JWT_EXPIRE=${{ secrets.JWT_EXPIRE }}
