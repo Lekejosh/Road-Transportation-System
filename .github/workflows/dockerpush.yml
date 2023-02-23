@@ -26,7 +26,7 @@ jobs:
       CLOUDINARY_APIKEY: 959645165615747
       CLOUDINARY_SECRET: ${{ secrets.CLOUDINARY_SECRET }}
     steps:
-      # Log into GitHub container registry
+      # Log into GitHub Container Registry
       - name: Log into registry
         uses: docker/login-action@v1
         with:
@@ -34,12 +34,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       # Check out the repo
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          registry: docker.io
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Checkout
         uses: actions/checkout@v2
       # Build the images
@@ -48,13 +42,18 @@ jobs:
       # List images
       - name: List images
         run: docker images
-      # Push images
-      - name: Push images
+      # Push images to GitHub Container Registry
+      - name: Push images to GitHub Container Registry
         run: docker-compose -f docker-compose.yml push --ignore-push-failures
       # Log in to Docker Hub
-      
-      # Build and push Docker image
-      - name: Build and push Docker image
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      # Build and push Docker image to Docker Hub
+      - name: Build and push Docker image to Docker Hub
         uses: docker/build-push-action@v2
         with:
           context: .
