@@ -18,7 +18,7 @@ jobs:
   build-images:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
-     steps:
+    steps:
       # Log into github registry    
       - name: Log into registry
         run: echo "${{ secrets.SECRET_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin  
