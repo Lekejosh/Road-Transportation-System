@@ -9,22 +9,6 @@ jobs:
   build-images:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
-    env:
-      JWT_EXPIRE: ${{ secrets.JWT_EXPIRE }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      PORT: ${{ secrets.PORT }}
-      PORT_1: ${{ secrets.PORT_1 }}
-      DB_URI: ${{ secrets.DB_URI }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-      COOKIE_EXPIRE: ${{ secrets.COOKIE_EXPIRE }}
-      SMPT_SERVICE: ${{ secrets.SMPT_SERVICE }}
-      SMPT_HOST: ${{ secrets.SMPT_HOST }}
-      SMPT_PORT: ${{ secrets.SMPT_PORT }}
-      SMPT_MAIL: ${{ secrets.SMPT_MAIL }}
-      SMPT_PASSWORD: ${{ secrets.SMPT_PASSWORD }}
-      CLOUDINARY_NAME: ${{ secrets.CLOUDINARY_NAME }}
-      CLOUDINARY_APIKEY: ${{ secrets.CLOUDINARY_APIKEY }}
-      CLOUDINARY_SECRET: ${{ secrets.CLOUDINARY_SECRET }}
     steps:
       # Log into GitHub Container Registry
       - name: Log into registry
@@ -44,8 +28,7 @@ jobs:
           file: docker-compose.yml
           push: true
           tags: |
-            ghcr.io/lekejosh/road-transportation-system:master
-            lekejosh/api1:latest
+            ghcr.io/lekejosh/road-transportation-system:latest
           build-args: |
             JWT_EXPIRE=${{ secrets.JWT_EXPIRE }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
