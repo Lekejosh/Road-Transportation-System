@@ -12,6 +12,7 @@ services:
   # Node Api service
   api:
     build: .
+    image: lekejosh/api
     restart: always
     volumes:
       - .:/usr/src/app

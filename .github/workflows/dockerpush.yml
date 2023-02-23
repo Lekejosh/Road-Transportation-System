@@ -15,25 +15,30 @@ on:
       - master 
 
 jobs:
-  push_to_registry:
+  build-images:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
-    steps:
-      - name: Check out the repo
-        uses: actions/checkout@v3
-      
+     steps:
+      # Log into github registry    
+      - name: Log into registry
+        run: echo "${{ secrets.SECRET_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin  
+      # Check out the repo    
+      - name: Checkout
+        uses: actions/checkout@v2
+      # Build the images    
+      - name: Build the docker-compose stack  
+        run: docker-compose -f docker-compose.yml -f  build
+      # List images
+      - name: List images
+        run: docker images
+      # Push images
+      - name: Push images
+        run: docker-compose -f docker-compose.yml  push --ignore-push-failures
       - name: Log in to Docker Hub
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-        with:
-          images: lekejosh/road-reservation-api
-      
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
@@ -41,3 +46,4 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+  
