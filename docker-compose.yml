@@ -18,22 +18,21 @@ services:
       - .:/usr/src/app
     ports:
       - "${PORT}:${PORT_1}"
-    env_file: .env
     environment:
-      JWT_EXPIRE: ${JWT_EXPIRE}
-      JWT_SECRET: ${JWT_SECRET}
-      PORT: ${PORT_1}
-      DB_URI: ${DB_URI}
+      JWT_EXPIRE: "${{ secrets.JWT_EXPIRE }}"
+      JWT_SECRET: "${{ secrets.JWT_SECRET }}"
+      PORT: "${{ secrets.PORT_1 }}"
+      DB_URI: "${{ secrets.DB_URI }}"
       DB_NAME: reservation
-      COOKIE_EXPIRE: ${COOKIE_EXPIRE}
-      SMPT_SERVICE: ${SMPT_SERVICE}
-      SMPT_HOST: ${SMPT_HOST}
-      SMPT_PORT: ${SMPT_PORT}
-      SMPT_MAIL: ${SMPT_MAIL}
-      SMPT_PASSWORD: ${SMPT_PASSWORD}
-      CLOUDINARY_NAME: ${CLOUDINARY_NAME}
-      CLOUDINARY_APIKEY: ${CLOUDINARY_APIKEY}
-      CLOUDINARY_SECRET: ${CLOUDINARY_SECRET}
+      COOKIE_EXPIRE: "${{ secrets.COOKIE_EXPIRE }}"
+      SMPT_SERVICE: "${{ secrets.SMPT_SERVICE }}"
+      SMPT_HOST: "${{ secrets.SMPT_HOST }}"
+      SMPT_PORT: "${{ secrets.SMPT_PORT }}"
+      SMPT_MAIL: "${{ secrets.SMPT_MAIL }}"
+      SMPT_PASSWORD: "${{ secrets.SMPT_PASSWORD }}"
+      CLOUDINARY_NAME: "${{ secrets.CLOUDINARY_NAME }}"
+      CLOUDINARY_APIKEY: "${{ secrets.CLOUDINARY_APIKEY }}"
+      CLOUDINARY_SECRET: "${{ secrets.CLOUDINARY_SECRET }}"
     depends_on:
       - mongo_db
 
