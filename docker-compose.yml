@@ -4,20 +4,25 @@ services:
     container_name: db_container
     image: mongo:latest
     restart: always
+    ports: 
+      - 2717:27017
     volumes:
       - mongo_db:/data/db
 
   # Node Api service
   api:
     build: .
+    restart: always
+    volumes:
+      - .:/usr/src/app
     ports:
-      - "80:4000"
+      - "${PORT}:${PORT_1}"
     env_file: .env
     environment:
       JWT_EXPIRE: ${JWT_EXPIRE}
       JWT_SECRET: ${JWT_SECRET}
-      PORT: 4000
-      DB_URI: mongodb://mongo_db:27017
+      PORT: ${PORT_1}
+      DB_URI: ${DB_URI}
       DB_NAME: reservation
       COOKIE_EXPIRE: ${COOKIE_EXPIRE}
       SMPT_SERVICE: ${SMPT_SERVICE}
@@ -30,8 +35,6 @@ services:
       CLOUDINARY_SECRET: ${CLOUDINARY_SECRET}
     depends_on:
       - mongo_db
-    links: 
-    - mongo_db
 
 volumes:
   mongo_db: {}

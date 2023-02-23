@@ -1,6 +1,6 @@
 const app = require("./app");
 const mongoose = require("mongoose");
-const cloudinary= require("cloudinary")
+const cloudinary = require("cloudinary");
 require("dotenv").config();
 
 process.on("uncaughtException", (err) => {
@@ -18,14 +18,14 @@ cloudinary.config({
 mongoose.set("strictQuery", true);
 
 mongoose
-  .connect(process.env.DB_URI)
+  .connect(`${process.env.DB_URI}/${process.env.DB_NAME}`)
   .then(() =>
     app.listen(process.env.PORT, () => {
-      console.log(`Server is working on http://localhost:${process.env.PORT}`);
+      console.log(`Server is working on http://localhost:${process.env.PORT_1}`);
     })
   )
   .catch((err) => {
-    console.log(err);
+    console.error(err);
   });
 
 process.on("unhandledRejection", (err) => {
