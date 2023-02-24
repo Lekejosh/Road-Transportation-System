@@ -12,11 +12,6 @@ const upload = require("../utils/multer");
 //TODO: install Multer
 //TODO: User  Avatar upload using cloudinary and Multer
 //TODO: Driver license Front & Back Upload, Using Cloudinary and Multer
-
-exports.welcome = catchAsyncErrors(async (req, res, next) => {
-  res.status(200).json({ success: true, message: "API is working" });
-});
-
 exports.registerUser = catchAsyncErrors(async (req, res, next) => {
   const myCloud = await cloudinary.v2.uploader.upload(req.file.path, {
     folder: "Transport",
