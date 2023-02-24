@@ -18,14 +18,14 @@ jobs:
           docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
       - name: pull mongo:latest
         run: |
-          docker pull mongo:latest
+          docker build ./mongodb db_container
       - name: docker build nodejs api
         run: |
           docker build -t lekejosh/app-api .
       - name: docker push
         run: |
-          docker push lekejosh/app-api
-          docker push mongo:latest
+          docker push lekejosh/app-api:master
+          docker push db_container:1.0.1
 
 # name: Build and push Docker images
 
