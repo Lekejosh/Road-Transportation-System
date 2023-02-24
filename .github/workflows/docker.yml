@@ -21,10 +21,10 @@ jobs:
           docker pull mongo:latest
       - name: docker build nodejs api
         run: |
-          docker build -t lekejosh/api .
+          docker build -t lekejosh/app-api .
       - name: docker push
         run: |
-          docker push lekejosh/api
+          docker push lekejosh/app-api
           docker push mongo:latest
 
 # name: Build and push Docker images
