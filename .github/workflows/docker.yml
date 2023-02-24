@@ -3,7 +3,7 @@ name: Docker Series Builds
 on:
   push:
     branches:
-      - master
+      - working
 
 jobs:
   build:
