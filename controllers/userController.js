@@ -262,10 +262,21 @@ exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
 
 // Driver
 exports.registerDriver = catchAsyncErrors(async (req, res, next) => {
+  const myCloud = await cloudinary.v2.uploader.upload(req.file.path, {
+    folder: "Transport_licence",
+    width: 150,
+    crop: "scale",
+  });
   const driverDetails = {
     licenceNumber: req.body.licenceNumber,
-    licenceFront: req.body.licenceFront,
-    licenceBack: req.body.licenceBack,
+    licenceFront: {
+      public_id: myCloud.public_id,
+      url: myCloud.secure_url,
+    },
+    licenceBack: {
+      public_id: myCloud.public_id,
+      url: myCloud.secure_url,
+    },
     plateNumber: req.body.plateNumber,
   };
   if (!req.user.id) {
