@@ -16,16 +16,16 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
           docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-      - name: docker build mongodb
+      - name: pull mongo:latest
         run: |
-          docker build mongo:latest
+          docker pull mongo:latest
       - name: docker build nodejs api
         run: |
-          docker build . -t lekejosh/api
+          docker build -t lekejosh/api .
       - name: docker push
         run: |
-          docker push mongo:latest
           docker push lekejosh/api
+          docker push mongo:latest
 
 # name: Build and push Docker images
 
