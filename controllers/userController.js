@@ -262,27 +262,43 @@ exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
 
 // Driver
 exports.registerDriver = catchAsyncErrors(async (req, res, next) => {
-  const myCloud = await cloudinary.v2.uploader.upload(req.file.path, {
-    folder: "Transport_licence",
-    width: 150,
-    crop: "scale",
-  });
+  let licence = [];
+
+  if (typeof req.body.licence === "string") {
+    licence.push(req.body.licence);
+  } else {
+    licence = req.body.licence;
+  }
+
+  const licenceLink = [];
+
+  for (let i = 0; i < licence.length; i++) {
+    // Corrected the typo in 'length'
+    const result = await cloudinary.v2.uploader.upload(licence[i], {
+      folder: "transportLicence",
+    });
+    licenceLink.push({
+      public_id: result.public_id,
+      url: result.secure_url,
+    });
+  }
+
   const driverDetails = {
     licenceNumber: req.body.licenceNumber,
-    licenceFront: {
-      public_id: myCloud.public_id,
-      url: myCloud.secure_url,
-    },
-    licenceBack: {
-      public_id: myCloud.public_id,
-      url: myCloud.secure_url,
-    },
+    licence: licenceLink,
     plateNumber: req.body.plateNumber,
   };
-  if (!req.user.id) {
+
+  const user = await User.findById(req.user.id); // Changed 'User.create()' to 'User.findById()'
+
+  if (!user) {
     return next(new ErrorHandler("User does not exist"));
   }
-  const user = await User.create(req.user.id, driverDetails);
+
+  user.role = "driver"; // Set the user role to 'driver'
+  user.driverDetails = driverDetails; // Assign the driver details to the user object
+  await user.save({ validateBeforeSave: false });
+
   res.status(200).json({ success: true, user });
 });
 
@@ -423,8 +439,6 @@ exports.getDriverReviews = catchAsyncErrors(async (req, res, next) => {
 //     success: true,
 //   });
 // });
-
-
 
 exports.deleteDriverReview = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.query;

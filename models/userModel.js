@@ -80,7 +80,7 @@ const userSchema = new mongoose.Schema(
     licence: [
       {
         public_id: {
-          type: Sting,
+          type: String,
         },
         url: {
           type: String,
