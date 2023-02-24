@@ -68,24 +68,25 @@ const userSchema = new mongoose.Schema(
     },
     plateNumber: {
       type: String,
-     
     },
     licenceNumber: {
       type: Number,
-    
     },
-    carImage:{
-      public_id:{type:String},
-      url:{type:String}
+    carImage: {
+      public_id: { type: String },
+      url: { type: String },
     },
-    licenceFront: {
-      public_id:{type:String},
-      url:{type:String}
-    },
-    licenceBack: {
-      public_id:{type:String},
-      url:{type:String}
-    },
+
+    licence: [
+      {
+        public_id: {
+          type: Sting,
+        },
+        url: {
+          type: String,
+        },
+      },
+    ],
 
     lastLoggedIn: {
       type: Date,
@@ -123,8 +124,8 @@ const userSchema = new mongoose.Schema(
       default: 0,
     },
     avatar: {
-      public_id:{type:String},
-      url:{type:String}
+      public_id: { type: String },
+      url: { type: String },
     },
     role: {
       type: String,

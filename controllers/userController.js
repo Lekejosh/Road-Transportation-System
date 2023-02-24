@@ -349,3 +349,121 @@ exports.createDriverReview = catchAsyncErrors(async (req, res, next) => {
     success: true,
   });
 });
+
+exports.getDriverReviews = catchAsyncErrors(async (req, res, next) => {
+  const driver = await User.findById(req.query.driverId);
+
+  if (!driver) {
+    return next(new ErrorHandler("Driver Not found", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    reviews: driver.reviews,
+  });
+});
+
+// exports.getPersonalDriverReview = catchAsyncErrors(async (req, res, next) => {
+//   const { driverId } = req.params;
+
+//   const user = await User.findById(req.user._id);
+
+//   if (!user) {
+//     return next(new ErrorHandler("User does not exist", 400));
+//   }
+
+//   const personalReview = user.reviews.find(
+//     (rev) =>
+//       rev.user.toString() === req.user._id.toString() &&
+//       rev.driver.toString() === driverId
+//   );
+
+//   if (!personalReview) {
+//     return next(new ErrorHandler("Review not found", 404));
+//   }
+
+//   res.status(200).json({
+//     success: true,
+//     review: personalReview,
+//   });
+// });
+
+// exports.editPersonalDriverReview = catchAsyncErrors(async (req, res, next) => {
+//   const { driverId } = req.params;
+//   const { rating, comment } = req.body;
+
+//   const user = await User.findById(req.user._id);
+
+//   if (!user) {
+//     return next(new ErrorHandler("User does not exist", 400));
+//   }
+
+//   const reviewToEdit = user.reviews.find(
+//     (rev) =>
+//       rev.user.toString() === req.user._id.toString() &&
+//       rev.driver.toString() === driverId
+//   );
+
+//   if (!reviewToEdit) {
+//     return next(new ErrorHandler("Review not found", 404));
+//   }
+
+//   reviewToEdit.rating = Number(rating);
+//   reviewToEdit.comment = comment;
+
+//   let avg = 0;
+//   for (const rev of user.reviews) {
+//     avg += rev.rating;
+//   }
+//   user.ratings = avg / user.reviews.length;
+
+//   await user.save({ validateBeforeSave: false });
+
+//   res.status(200).json({
+//     success: true,
+//   });
+// });
+
+
+
+exports.deleteDriverReview = catchAsyncErrors(async (req, res, next) => {
+  const { id } = req.query;
+  const reviewId = req.params.reviewId;
+
+  const user = await User.findById(id);
+
+  if (!user) {
+    return next(new ErrorHandler("User does not exist", 400));
+  }
+
+  const reviewToDelete = user.reviews.find(
+    (rev) => rev._id.toString() === reviewId
+  );
+
+  if (!reviewToDelete) {
+    return next(new ErrorHandler("Review not found", 404));
+  }
+
+  if (reviewToDelete.user.toString() !== req.user._id.toString()) {
+    return next(new ErrorHandler("Not authorized to delete this review", 401));
+  }
+
+  user.reviews = user.reviews.filter((rev) => rev._id.toString() !== reviewId);
+  user.numOfReviews = user.reviews.length;
+
+  if (user.reviews.length === 0) {
+    user.ratings = 0;
+  } else {
+    let avg = 0;
+    for (const rev of user.reviews) {
+      avg += rev.rating;
+    }
+    user.ratings = avg / user.reviews.length;
+  }
+
+  await user.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+    success: true,
+  });
+});
