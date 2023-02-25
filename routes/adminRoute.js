@@ -31,9 +31,7 @@ router
   .get(isAuthenticatedUser, authorizeRole("admin"), getUser)
   .delete(isAuthenticatedUser, authorizeRole("admin"), deleteUser)
   .patch(isAuthenticatedUser, authorizeRole("admin"), updateUser);
-router
-  .route("/summary")
-  .get(isAuthenticatedUser, authorizeRole("admin"), getDailyReport);
+
 
 //Driver
 router
@@ -46,7 +44,7 @@ router
   .delete(isAuthenticatedUser, authorizeRole("admin"), deleteDriver);
 
 //Admin
-router.route("/admin/create").post(isAuthenticatedUser,authorizeRole("admin"),createAdmin)
+router.route("/create").post(isAuthenticatedUser,authorizeRole("admin"),createAdmin)
 router.route("/all/admin").get(isAuthenticatedUser,authorizeRole("admin"),getAllAdmin)
 router
   .route("/admin/find/:id")
@@ -60,5 +58,7 @@ router
 router
   .route("/trip/:id")
   .get(isAuthenticatedUser, authorizeRole("admin"), getSingleTrip);
-
+router
+  .route("/summary")
+  .get(isAuthenticatedUser, authorizeRole("admin"), getDailyReport);
 module.exports = router;

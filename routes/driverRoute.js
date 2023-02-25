@@ -23,7 +23,7 @@ router.route("/register").put(
   registerDriver
 );
 
-router.route("/all").get(isAuthenticatedUser, findDriver);
+router.route("/all").get(isAuthenticatedUser,authorizeRole('admin'), findDriver);
 router.route("/id").get(isAuthenticatedUser, findOneDriver);
 router
   .route("/review")
