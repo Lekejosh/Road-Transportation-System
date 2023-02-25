@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const {
-  welcome,
+  // welcome,
   registerUser,
   loginUser,
   verifyEmail,
@@ -11,10 +11,11 @@ const {
   forgotPassword,
   resetPassword,
   updatePassword,
+  updateAvatar,
 } = require("../controllers/userController");
 const upload = require("../utils/multer");
 const { isAuthenticatedUser } = require("../middlewares/auth");
-router.route("/").get(welcome)
+
 router.route("/register").post(upload.single("avatar"), registerUser);
 router.route("/login").post(loginUser);
 router
@@ -26,6 +27,7 @@ router
   .route("/update")
   .put(isAuthenticatedUser, updateProfile)
   .post(isAuthenticatedUser, updatePassword);
+router.route("/update/avatar").put(upload.single("avatar"),isAuthenticatedUser, updateAvatar);
 router.route("/password/forgot").post(forgotPassword);
 
 router.route("/password/reset/:token").put(resetPassword);

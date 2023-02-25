@@ -12,12 +12,8 @@ const upload = require("../utils/multer");
 //TODO: install Multer
 //TODO: User  Avatar upload using cloudinary and Multer
 //TODO: Driver license Front & Back Upload, Using Cloudinary and Multer
-
-exports.welcome = catchAsyncErrors(async (req, res, next) => {
-  res.status(200).json({ success: true, message: "API is working" });
-});
-
 exports.registerUser = catchAsyncErrors(async (req, res, next) => {
+  console.log(req.body);
   const myCloud = await cloudinary.v2.uploader.upload(req.file.path, {
     folder: "Transport",
     width: 150,
@@ -182,6 +178,34 @@ exports.updateProfile = catchAsyncErrors(async (req, res, next) => {
   res.status(200).json({ success: true });
 });
 
+exports.updateAvatar = async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+
+  if (!user) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+  if (user.avatar.public_id) {
+    await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+  }
+
+  const result = await cloudinary.v2.uploader.upload(req.file.path, {
+    folder: "Transport",
+    width: 150,
+    crop: "scale",
+  });
+
+  user.avatar = {
+    public_id: result.public_id,
+    url: result.secure_url,
+  };
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+  });
+};
+
 exports.updatePassword = catchAsyncErrors(async (req, res, next) => {
   const user = await User.findById(req.user.id).select("+password");
   const isPasswordMatched = await user.comparePassword(req.body.oldPassword);
@@ -257,6 +281,14 @@ exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
   if (req.body.newPassword !== req.body.confirmPassword) {
     return next(new ErrorHandler("Password does not Match", 400));
   }
+  const message = `Your password has been changed successfully`;
+  await sendEmail({
+    email: user.email,
+    subject: `Password Changed Successfully`,
+    html: message,
+  }).then((r) => {
+    console.log("Reset token Sent");
+  });
   user.password = req.body.newPassword;
   user.resetPasswordToken = undefined;
   user.resetPasswordExpire = undefined;
@@ -267,17 +299,71 @@ exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
 
 // Driver
 exports.registerDriver = catchAsyncErrors(async (req, res, next) => {
-  const driverDetails = {
-    licenceNumber: req.body.licenceNumber,
-    licenceFront: req.body.licenceFront,
-    licenceBack: req.body.licenceBack,
-    plateNumber: req.body.plateNumber,
-  };
-  if (!req.user.id) {
-    return next(new ErrorHandler("User does not exist"));
+  const licenceFrontResult = await cloudinary.v2.uploader.upload(
+    req.files.licenceFront[0].path,
+    {
+      folder: "transportLicence",
+    }
+  );
+
+  const licenceBackResult = await cloudinary.v2.uploader.upload(
+    req.files.licenceBack[0].path,
+    {
+      folder: "transportLicence",
+    }
+  );
+  const carImageFrontResult = await cloudinary.v2.uploader.upload(
+    req.files.carImageFront[0].path,
+    {
+      folder: "carImages",
+    }
+  );
+  const carImageBackResult = await cloudinary.v2.uploader.upload(
+    req.files.carImageBack[0].path,
+    {
+      folder: "carImages",
+    }
+  );
+  const carImageSideResult = await cloudinary.v2.uploader.upload(
+    req.files.carImageSide[0].path,
+    {
+      folder: "carImages",
+    }
+  );
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user.id,
+    {
+      licenceNumber: req.body.licenceNumber,
+      carImageFront: {
+        public_id: carImageFrontResult.public_id,
+        url: carImageFrontResult.secure_url,
+      },
+      carImageBack: {
+        public_id: carImageBackResult.public_id,
+        url: carImageBackResult.secure_url,
+      },
+      carImageSide: {
+        public_id: carImageSideResult.public_id,
+        url: carImageSideResult.secure_url,
+      },
+      licenceFront: {
+        public_id: licenceFrontResult.public_id,
+        url: licenceFrontResult.secure_url,
+      },
+      licenceBack: {
+        public_id: licenceBackResult.public_id,
+        url: licenceBackResult.secure_url,
+      },
+      plateNumber: req.body.plateNumber,
+      role: "driver",
+    },
+    { new: true }
+  );
+  if (!updatedUser) {
+    return next(new ErrorHandler("User does not exist", 404));
   }
-  const user = await User.create(req.user.id, driverDetails);
-  res.status(200).json({ success: true, user });
+
+  res.status(200).json({ success: true, user: updatedUser });
 });
 
 exports.findDriver = catchAsyncErrors(async (req, res, next) => {
@@ -336,6 +422,122 @@ exports.createDriverReview = catchAsyncErrors(async (req, res, next) => {
     avg += rev.rating;
   }
   user.ratings = avg / user.reviews.length;
+
+  await user.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+    success: true,
+  });
+});
+
+exports.getDriverReviews = catchAsyncErrors(async (req, res, next) => {
+  const driver = await User.findById(req.query.driverId);
+
+  if (!driver) {
+    return next(new ErrorHandler("Driver Not found", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    reviews: driver.reviews,
+  });
+});
+
+// exports.getPersonalDriverReview = catchAsyncErrors(async (req, res, next) => {
+//   const { driverId } = req.params;
+
+//   const user = await User.findById(req.user._id);
+
+//   if (!user) {
+//     return next(new ErrorHandler("User does not exist", 400));
+//   }
+
+//   const personalReview = user.reviews.find(
+//     (rev) =>
+//       rev.user.toString() === req.user._id.toString() &&
+//       rev.driver.toString() === driverId
+//   );
+
+//   if (!personalReview) {
+//     return next(new ErrorHandler("Review not found", 404));
+//   }
+
+//   res.status(200).json({
+//     success: true,
+//     review: personalReview,
+//   });
+// });
+
+// exports.editPersonalDriverReview = catchAsyncErrors(async (req, res, next) => {
+//   const { driverId } = req.params;
+//   const { rating, comment } = req.body;
+
+//   const user = await User.findById(req.user._id);
+
+//   if (!user) {
+//     return next(new ErrorHandler("User does not exist", 400));
+//   }
+
+//   const reviewToEdit = user.reviews.find(
+//     (rev) =>
+//       rev.user.toString() === req.user._id.toString() &&
+//       rev.driver.toString() === driverId
+//   );
+
+//   if (!reviewToEdit) {
+//     return next(new ErrorHandler("Review not found", 404));
+//   }
+
+//   reviewToEdit.rating = Number(rating);
+//   reviewToEdit.comment = comment;
+
+//   let avg = 0;
+//   for (const rev of user.reviews) {
+//     avg += rev.rating;
+//   }
+//   user.ratings = avg / user.reviews.length;
+
+//   await user.save({ validateBeforeSave: false });
+
+//   res.status(200).json({
+//     success: true,
+//   });
+// });
+
+exports.deleteDriverReview = catchAsyncErrors(async (req, res, next) => {
+  const { id } = req.query;
+  const reviewId = req.params.reviewId;
+
+  const user = await User.findById(id);
+
+  if (!user) {
+    return next(new ErrorHandler("User does not exist", 400));
+  }
+
+  const reviewToDelete = user.reviews.find(
+    (rev) => rev._id.toString() === reviewId
+  );
+
+  if (!reviewToDelete) {
+    return next(new ErrorHandler("Review not found", 404));
+  }
+
+  if (reviewToDelete.user.toString() !== req.user._id.toString()) {
+    return next(new ErrorHandler("Not authorized to delete this review", 401));
+  }
+
+  user.reviews = user.reviews.filter((rev) => rev._id.toString() !== reviewId);
+  user.numOfReviews = user.reviews.length;
+
+  if (user.reviews.length === 0) {
+    user.ratings = 0;
+  } else {
+    let avg = 0;
+    for (const rev of user.reviews) {
+      avg += rev.rating;
+    }
+    user.ratings = avg / user.reviews.length;
+  }
 
   await user.save({ validateBeforeSave: false });
 
