@@ -15,7 +15,7 @@ const {
 } = require("../controllers/userController");
 const upload = require("../utils/multer");
 const { isAuthenticatedUser } = require("../middlewares/auth");
-// router.route("/").get(welcome)
+
 router.route("/register").post(upload.single("avatar"), registerUser);
 router.route("/login").post(loginUser);
 router
