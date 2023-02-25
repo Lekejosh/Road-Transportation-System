@@ -1,9 +1,9 @@
 # ROAD TRANSPORT RESERVATION API
 
-### NB: This is a school project
+
 
 ### Introduction
-This project is a school assignment for a road transportation reservation system, where customers often plan their travel depending on their destination.
+This project is a mini for a road transportation reservation system, where customers often plan their travel depending on their destination.
 
 ### Project Support Features
 * User can Signup and Login to their accounts
