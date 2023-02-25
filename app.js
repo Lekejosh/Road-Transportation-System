@@ -33,7 +33,7 @@ const admin = require("./routes/adminRoute");
 
 // Routes
 app.get("/",(req,res)=>{
-  res.status(200).json({success:true,message:"Api Working"})
+  res.status(200).json({success:true,message:"Welcome to Road Transport Resrvation API"})
 })
 app.use("/api/v1/user", user);
 app.use("/api/v1/driver", driver);
