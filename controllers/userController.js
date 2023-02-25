@@ -13,6 +13,7 @@ const upload = require("../utils/multer");
 //TODO: User  Avatar upload using cloudinary and Multer
 //TODO: Driver license Front & Back Upload, Using Cloudinary and Multer
 exports.registerUser = catchAsyncErrors(async (req, res, next) => {
+  console.log(req.body);
   const myCloud = await cloudinary.v2.uploader.upload(req.file.path, {
     folder: "Transport",
     width: 150,
@@ -252,6 +253,14 @@ exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
   if (req.body.newPassword !== req.body.confirmPassword) {
     return next(new ErrorHandler("Password does not Match", 400));
   }
+  const message = `Your password has been changed successfully`;
+  await sendEmail({
+    email: user.email,
+    subject: `Password Changed Successfully`,
+    html: message,
+  }).then((r) => {
+    console.log("Reset token Sent");
+  });
   user.password = req.body.newPassword;
   user.resetPasswordToken = undefined;
   user.resetPasswordExpire = undefined;
@@ -262,45 +271,73 @@ exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
 
 // Driver
 exports.registerDriver = catchAsyncErrors(async (req, res, next) => {
-  let licence = [];
-
-  if (typeof req.body.licence === "string") {
-    licence.push(req.body.licence);
-  } else {
-    licence = req.body.licence;
-  }
-
-  const licenceLink = [];
-
-  for (let i = 0; i < licence.length; i++) {
-    // Corrected the typo in 'length'
-    const result = await cloudinary.v2.uploader.upload(licence[i], {
+  const licenceFrontResult = await cloudinary.v2.uploader.upload(
+    req.files.licenceFront[0].path,
+    {
       folder: "transportLicence",
-    });
-    licenceLink.push({
-      public_id: result.public_id,
-      url: result.secure_url,
-    });
+    }
+  );
+
+  const licenceBackResult = await cloudinary.v2.uploader.upload(
+    req.files.licenceBack[0].path,
+    {
+      folder: "transportLicence",
+    }
+  );
+  const carImageFrontResult = await cloudinary.v2.uploader.upload(
+    req.files.carImageFront[0].path,
+    {
+      folder: "carImages",
+    }
+  );
+  const carImageBackResult = await cloudinary.v2.uploader.upload(
+    req.files.carImageBack[0].path,
+    {
+      folder: "carImages",
+    }
+  );
+  const carImageSideResult = await cloudinary.v2.uploader.upload(
+    req.files.carImageSide[0].path,
+    {
+      folder: "carImages",
+    }
+  );
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user.id,
+    {
+      licenceNumber: req.body.licenceNumber,
+      carImageFront: {
+        public_id: carImageFrontResult.public_id,
+        url: carImageFrontResult.secure_url,
+      },
+      carImageBack: {
+        public_id: carImageBackResult.public_id,
+        url: carImageBackResult.secure_url,
+      },
+      carImageSide: {
+        public_id: carImageSideResult.public_id,
+        url: carImageSideResult.secure_url,
+      },
+      licenceFront: {
+        public_id: licenceFrontResult.public_id,
+        url: licenceFrontResult.secure_url,
+      },
+      licenceBack: {
+        public_id: licenceBackResult.public_id,
+        url: licenceBackResult.secure_url,
+      },
+      plateNumber: req.body.plateNumber,
+      role: "driver",
+    },
+    { new: true }
+  ); 
+  if (!updatedUser) {
+    return next(new ErrorHandler("User does not exist",404));
   }
 
-  const driverDetails = {
-    licenceNumber: req.body.licenceNumber,
-    licence: licenceLink,
-    plateNumber: req.body.plateNumber,
-  };
-
-  const user = await User.findById(req.user.id); // Changed 'User.create()' to 'User.findById()'
-
-  if (!user) {
-    return next(new ErrorHandler("User does not exist"));
-  }
-
-  user.role = "driver"; // Set the user role to 'driver'
-  user.driverDetails = driverDetails; // Assign the driver details to the user object
-  await user.save({ validateBeforeSave: false });
-
-  res.status(200).json({ success: true, user });
+  res.status(200).json({ success: true, user: updatedUser });
 });
+
 
 exports.findDriver = catchAsyncErrors(async (req, res, next) => {
   const driver = await User.find({ role: "driver" });

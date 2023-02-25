@@ -72,21 +72,26 @@ const userSchema = new mongoose.Schema(
     licenceNumber: {
       type: Number,
     },
-    carImage: {
+    carImageFront: {
       public_id: { type: String },
       url: { type: String },
     },
-
-    licence: [
-      {
-        public_id: {
-          type: String,
-        },
-        url: {
-          type: String,
-        },
-      },
-    ],
+    carImageBack: {
+      public_id: { type: String },
+      url: { type: String },
+    },
+    carImageSide: {
+      public_id: { type: String },
+      url: { type: String },
+    },
+    licenceFront: {
+      public_id: { type: String },
+      url: { type: String },
+    },
+    licenceBack: {
+      public_id: { type: String },
+      url: { type: String },
+    },
 
     lastLoggedIn: {
       type: Date,
