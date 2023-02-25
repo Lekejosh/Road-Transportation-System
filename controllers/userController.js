@@ -178,6 +178,34 @@ exports.updateProfile = catchAsyncErrors(async (req, res, next) => {
   res.status(200).json({ success: true });
 });
 
+exports.updateAvatar = async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+
+  if (!user) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+  if (user.avatar.public_id) {
+    await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+  }
+
+  const result = await cloudinary.v2.uploader.upload(req.file.path, {
+    folder: "Transport",
+    width: 150,
+    crop: "scale",
+  });
+
+  user.avatar = {
+    public_id: result.public_id,
+    url: result.secure_url,
+  };
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+  });
+};
+
 exports.updatePassword = catchAsyncErrors(async (req, res, next) => {
   const user = await User.findById(req.user.id).select("+password");
   const isPasswordMatched = await user.comparePassword(req.body.oldPassword);
@@ -330,14 +358,13 @@ exports.registerDriver = catchAsyncErrors(async (req, res, next) => {
       role: "driver",
     },
     { new: true }
-  ); 
+  );
   if (!updatedUser) {
-    return next(new ErrorHandler("User does not exist",404));
+    return next(new ErrorHandler("User does not exist", 404));
   }
 
   res.status(200).json({ success: true, user: updatedUser });
 });
-
 
 exports.findDriver = catchAsyncErrors(async (req, res, next) => {
   const driver = await User.find({ role: "driver" });

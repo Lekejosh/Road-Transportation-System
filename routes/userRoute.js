@@ -11,6 +11,7 @@ const {
   forgotPassword,
   resetPassword,
   updatePassword,
+  updateAvatar,
 } = require("../controllers/userController");
 const upload = require("../utils/multer");
 const { isAuthenticatedUser } = require("../middlewares/auth");
@@ -26,6 +27,7 @@ router
   .route("/update")
   .put(isAuthenticatedUser, updateProfile)
   .post(isAuthenticatedUser, updatePassword);
+router.route("/update/avatar").put(upload.single("avatar"),isAuthenticatedUser, updateAvatar);
 router.route("/password/forgot").post(forgotPassword);
 
 router.route("/password/reset/:token").put(resetPassword);
