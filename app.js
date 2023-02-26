@@ -5,11 +5,13 @@ const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const bodyParser = require("body-parser");
 const checkTrips = require("./middlewares/serviceWorker");
+const cors = require("cors")
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors())
 
 setInterval(checkTrips, 60 * 1000);
 
