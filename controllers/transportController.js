@@ -39,7 +39,7 @@ exports.createTransport = catchAsyncErrors(async (req, res, next) => {
 });
 
 exports.tripUpdate = catchAsyncErrors(async (req, res, next) => {
-  console.log(Date.now())
+  console.log(Date.now());
   const trip = {
     departureState: req.body.departureState,
     arrivalState: req.body.arrivalState,
@@ -55,6 +55,22 @@ exports.tripUpdate = catchAsyncErrors(async (req, res, next) => {
   }
 
   res.status(200).json({ success: true, transport });
+});
+
+exports.searchTrips = catchAsyncError(async (req, res, next) => {
+  const keyword = req.query.search
+    ? {
+        $or: [
+          { departureState: { $regex: req.query.search, $options: "i" } },
+          { arrivalState: { $regex: req.query.search, $options: "i" } },
+        ],
+      }
+    : {};
+
+  const trip = await Transport.find(keyword).find({
+    departed: { $ne: true },
+  });
+  res.status(200).json({ success: true, trip });
 });
 
 exports.getTripByState = catchAsyncErrors(async (req, res, next) => {
@@ -157,7 +173,7 @@ exports.deleteTransport = catchAsyncErrors(async (req, res, next) => {
   if (!transport) {
     return next(new ErrorHandler("Trip Not Found", 404));
   }
-  await Order.deleteMany({ transport: transport._id, });
+  await Order.deleteMany({ transport: transport._id });
   await transport.remove();
 
   res.status(200).json({ success: true });

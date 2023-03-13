@@ -47,6 +47,10 @@ const transportSchema = new mongoose.Schema(
       type: Boolean,
       default: "false",
     },
+    departed: {
+      type: Boolean,
+      default: "false",
+    },
     departureTime: {
       type: Date,
     },

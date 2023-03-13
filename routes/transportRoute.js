@@ -8,6 +8,7 @@ const {
   isComplete,
   availableTrip,
   deleteTransport,
+  searchTrips,
 } = require("../controllers/transportController");
 
 const { isAuthenticatedUser, authorizeRole } = require("../middlewares/auth");
@@ -24,7 +25,8 @@ router
   .route("/trip/complete/:id")
   .get(isAuthenticatedUser, authorizeRole("driver"), isComplete);
 
-router.route("/all").get(availableTrip);
+router.route("/").get(availableTrip)
+router.route("/search").get(searchTrips)
 router
   .route("/delete/:id")
   .delete(
