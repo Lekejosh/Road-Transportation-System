@@ -57,7 +57,8 @@ exports.tripUpdate = catchAsyncErrors(async (req, res, next) => {
   res.status(200).json({ success: true, transport });
 });
 
-exports.searchTrips = catchAsyncError(async (req, res, next) => {
+exports.searchTrips = catchAsyncErrors(async (req, res, next) => {
+  const resultPerPage = 10;
   const keyword = req.query.search
     ? {
         $or: [
@@ -67,9 +68,13 @@ exports.searchTrips = catchAsyncError(async (req, res, next) => {
       }
     : {};
 
-  const trip = await Transport.find(keyword).find({
-    departed: { $ne: true },
-  });
+  const apiFeature = new ApiFeatures(
+    Transport.find(keyword).find({
+      departed: { $ne: true },
+    }),
+    req.query
+  ).pagination(resultPerPage);
+  const trip = await apiFeature.query;
   res.status(200).json({ success: true, trip });
 });
 
