@@ -26,6 +26,7 @@
     "nodemailer": "^6.8.0",
     "nodemon": "^2.0.20",
     "otp-generator": "^4.0.0",
+    "universal-cookie-express": "^4.0.3",
     "validator": "^13.7.0"
   },
   "engines": {
