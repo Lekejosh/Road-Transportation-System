@@ -39,7 +39,6 @@ exports.createTransport = catchAsyncErrors(async (req, res, next) => {
 });
 
 exports.tripUpdate = catchAsyncErrors(async (req, res, next) => {
-  console.log(Date.now());
   const trip = {
     departureState: req.body.departureState,
     arrivalState: req.body.arrivalState,
@@ -69,13 +68,11 @@ exports.searchTrips = catchAsyncErrors(async (req, res, next) => {
     : {};
 
   const apiFeature = new ApiFeatures(
-    Transport.find(keyword).find({
-      departed: { $ne: true },
-    }),
+    Transport.find({ ...keyword, departed: { $ne: true } }),
     req.query
   ).pagination(resultPerPage);
-  const trip = await apiFeature.query;
-  res.status(200).json({ success: true, trip });
+  const trips = await apiFeature.query;
+  res.status(200).json({ success: true, data: trips });
 });
 
 exports.getTripByState = catchAsyncErrors(async (req, res, next) => {
