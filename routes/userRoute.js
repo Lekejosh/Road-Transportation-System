@@ -12,12 +12,14 @@ const {
   resetPassword,
   updatePassword,
   updateAvatar,
+  userDetails,
 } = require("../controllers/userController");
 const upload = require("../utils/multer");
 const { isAuthenticatedUser } = require("../middlewares/auth");
 
 router.route("/register").post(upload.single("avatar"), registerUser);
 router.route("/login").post(loginUser);
+router.route('/me').get(isAuthenticatedUser,userDetails)
 router
   .route("/email/verification")
   .post(isAuthenticatedUser, verifyEmail)

@@ -138,11 +138,11 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
   }).select("+password");
 
   if (!user) {
-    return next(new ErrorHandler("Invalid Mobile Number/Email", 401));
+    return next(new ErrorHandler("Invalid Mobile Number/Email", 400));
   }
   const isPasswordMatched = await user.comparePassword(password);
   if (!isPasswordMatched) {
-    return next(new ErrorHandler("Invalid password", 401));
+    return next(new ErrorHandler("Invalid password", 400));
   }
   if (!user.isVerified) {
     return next(
@@ -177,6 +177,14 @@ exports.updateProfile = catchAsyncErrors(async (req, res, next) => {
   await User.findByIdAndUpdate(req.user.id, profileUpdate);
   res.status(200).json({ success: true });
 });
+
+exports.userDetails = catchAsyncErrors(async(req,res,next)=>{
+  const user = await User.findById(req.user._id)
+  if(!user){
+    return next(new ErrorHandler("User not found",404))
+  }
+  res.status(200).json({success:true,user})
+})
 
 exports.updateAvatar = async (req, res, next) => {
   const user = await User.findById(req.user.id);
