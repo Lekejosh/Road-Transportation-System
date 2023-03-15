@@ -32,6 +32,7 @@ const driver = require("./routes/driverRoute");
 const transport = require("./routes/transportRoute");
 const order = require("./routes/orderRoute");
 const admin = require("./routes/adminRoute");
+const state = require("./routes/stateRoute");
 
 // Routes
 app.get("/",(req,res)=>{
@@ -42,6 +43,7 @@ app.use("/api/v1/driver", driver);
 app.use("/api/v1/transport", transport);
 app.use("/api/v1/order", order);
 app.use("/api/v1/admin", admin);
+app.use("/api/v1/state", state);
 
 app.use(errorMiddleware);
 
