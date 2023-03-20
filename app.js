@@ -6,15 +6,19 @@ const session = require("express-session");
 const bodyParser = require("body-parser");
 const checkTrips = require("./middlewares/serviceWorker");
 const cors = require("cors");
-const credentials = require("./middlewares/credentials");
-const corsOptions = require("./config/corsOptions");
+// const credentials = require("./middlewares/credentials");
+// const corsOptions = require("./config/corsOptions");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors(corsOptions));
+app.use(
+  cors({
+    origin: [process.env.CORS_1, process.env.CORS_2, process.env.CORS_3],
+  })
+);
 
-app.use(credentials);
+// app.use(credentials);
 
 setInterval(checkTrips, 60 * 1000);
 
