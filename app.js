@@ -5,17 +5,16 @@ const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const bodyParser = require("body-parser");
 const checkTrips = require("./middlewares/serviceWorker");
-const cors = require("cors")
-
+const cors = require("cors");
+const credentials = require("./middlewares/credentials");
+const corsOptions = require("./config/corsOptions");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(
-  cors({
-    origin: [process.env.CORS],
-  })
-);
+app.use(cors(corsOptions));
+
+app.use(credentials);
 
 setInterval(checkTrips, 60 * 1000);
 
@@ -37,11 +36,15 @@ const transport = require("./routes/transportRoute");
 const order = require("./routes/orderRoute");
 const admin = require("./routes/adminRoute");
 const state = require("./routes/stateRoute");
+const corsOptions = require("./config/corsOptions");
 
 // Routes
-app.get("/",(req,res)=>{
-  res.status(200).json({success:true,message:"Welcome to Road Transport Resrvation API"})
-})
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Welcome to Road Transport Resrvation API",
+  });
+});
 app.use("/api/v1/user", user);
 app.use("/api/v1/driver", driver);
 app.use("/api/v1/transport", transport);
