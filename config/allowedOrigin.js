@@ -1,7 +1,6 @@
 const allowedOrigin = [
-  process.env.CORS_1,
-  process.env.CORS_2,
-  process.env.CORS_3,
+  "http://localhost:4000",
+  "http://localhost:8082",
 ];
 
 module.exports = allowedOrigin;
