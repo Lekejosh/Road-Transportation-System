@@ -1,6 +1,3 @@
-const allowedOrigin = [
-    'http://localhost:4000',
-    'http://localhost:5000',
-]
+const allowedOrigin = [process.env.CORS_1, process.env.CORS_2];
 
 module.exports = allowedOrigin
