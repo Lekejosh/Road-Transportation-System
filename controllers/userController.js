@@ -188,8 +188,7 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
     // secure: true,
     // sameSite: "None",
   });
-  user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
-  user.save();
+  user.refreshToken = [...newRefreshTokenArray, newRefreshToken]
   res.cookie("refreshToken", newRefreshToken, {
     httpOnly: true,
     // sameSite: "none",
