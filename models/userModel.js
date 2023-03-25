@@ -136,7 +136,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "user",
     },
-    refreshToken:[string],
+    refreshToken:[String],
     generatedOtp: String,
     resetPasswordToken: String,
     resetPasswordExpire: Date,
