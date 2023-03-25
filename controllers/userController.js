@@ -7,6 +7,7 @@ const sendToken = require("../utils/jwtToken");
 const { generateOTP } = require("../utils/otpGenerator");
 const cloudinary = require("cloudinary");
 const upload = require("../utils/multer");
+const jwt = require("jsonwebtoken");
 
 //TODO: install Cloudinary
 //TODO: install Multer
