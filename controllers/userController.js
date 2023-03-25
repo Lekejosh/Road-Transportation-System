@@ -60,7 +60,24 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
     return next(new ErrorHandler(err.message, 500));
   }
-  sendToken(user, 201, res);
+  const newRefreshToken = jwt.sign(
+    { id: user._id },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRE }
+  );
+
+  user.refreshToken = [newRefreshToken];
+  user.save();
+  res.cookie("refreshToken", newRefreshToken, {
+    httpOnly: true,
+    // sameSite: "none",
+    // secure: true,
+    maxAge: 24 * 60 * 60 * 1000,
+  });
+
+  user.getAccessToken();
+
+  sendToken(user, 200, res);
 });
 
 exports.verifyEmail = catchAsyncErrors(async (req, res, next) => {
@@ -115,6 +132,7 @@ exports.resendOtp = catchAsyncErrors(async (req, res, next) => {
 });
 
 exports.loginUser = catchAsyncErrors(async (req, res, next) => {
+  const cookies = req.cookies;
   const { emailNumb, password } = req.body;
 
   if (!emailNumb || !password) {
@@ -143,15 +161,44 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
   if (!isPasswordMatched) {
     return next(new ErrorHandler("Invalid password", 400));
   }
-  if (!user.isVerified) {
-    return next(
-      new ErrorHandler("Unverified Email Address🤨, Please Verify", 403)
-    );
+
+  const newRefreshToken = jwt.sign(
+    { id: user._id },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRE }
+  );
+
+  let newRefreshTokenArray = !cookies?.refreshToken
+    ? user.refreshToken
+    : user.refreshToken.filter((rt) => rt !== cookies.refreshToken);
+
+  if (cookies.refreshToken) {
+    const refreshToken = cookies.refreshToken;
+    const foundToken = await User.findOne({ refreshToken });
+    if (!foundToken) {
+      console.log("Refresh token reuse");
+      newRefreshTokenArray = [];
+    }
   }
+
+  if (!cookies) return next(new ErrorHandler("Refresh token not present", 400));
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    // secure: true,
+    // sameSite: "None",
+  });
+  user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
+  user.save();
+  res.cookie("refreshToken", newRefreshToken, {
+    httpOnly: true,
+    // sameSite: "none",
+    // secure: true,
+    maxAge: 24 * 60 * 60 * 1000,
+  });
   user.lastLoggedIn = Date.now();
   await user.save();
+  user.getAccessToken();
 
-  user.getJWTToken();
   sendToken(user, 200, res);
 });
 
@@ -177,13 +224,13 @@ exports.updateProfile = catchAsyncErrors(async (req, res, next) => {
   res.status(200).json({ success: true });
 });
 
-exports.userDetails = catchAsyncErrors(async(req,res,next)=>{
-  const user = await User.findById(req.user._id)
-  if(!user){
-    return next(new ErrorHandler("User not found",404))
+exports.userDetails = catchAsyncErrors(async (req, res, next) => {
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    return next(new ErrorHandler("User not found", 404));
   }
-  res.status(200).json({success:true,user})
-})
+  res.status(200).json({ success: true, user });
+});
 
 exports.updateAvatar = async (req, res, next) => {
   const user = await User.findById(req.user.id);
@@ -551,4 +598,72 @@ exports.deleteDriverReview = catchAsyncErrors(async (req, res, next) => {
   res.status(200).json({
     success: true,
   });
+});
+
+exports.refreshToken = catchAsyncErrors(async (req, res, next) => {
+  const cookies = req.cookies;
+  if (!cookies?.refreshToken) {
+    return next(new ErrorHandler("No Cookie present", 401));
+  }
+
+  const refreshToken = cookies.refreshToken;
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    // sameSite: "none",
+    // secure: true,
+  });
+
+  const user = await User.findOne({ refreshToken: refreshToken });
+  if (!user) {
+    jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET,
+      async (err, decoded) => {
+        if (err) {
+          return next(new ErrorHandler("Forbidden", 403));
+        }
+        const hackedUser = await User.findById(decoded.id);
+        hackedUser.refreshToken = [];
+        await hackedUser.save();
+        return next(new ErrorHandler("Forbidden", 403));
+      }
+    );
+  } else {
+    const newRefresTokenArray = user.refreshToken.filter(
+      (rt) => rt !== refreshToken
+    );
+
+    jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET,
+      async (err, decoded) => {
+        user.refreshToken = [...newRefresTokenArray];
+        const result = await user.save();
+        if (err || user._id.toString() !== decoded.id) {
+          return next(new ErrorHandler("Forbidden", 403));
+        }
+
+        const accessToken = jwt.sign(
+          { id: decoded.id },
+          process.env.ACCESS_TOKEN_SECRET,
+          { expiresIn: process.env.ACCESS_TOKEN_EXPIRE }
+        );
+
+        const newRefreshToken = jwt.sign(
+          { id: user._id },
+          process.env.REFRESH_TOKEN_SECRET,
+          { expiresIn: process.env.REFRESH_TOKEN_EXPIRE }
+        );
+        user.refreshToken = [...newRefresTokenArray, newRefreshToken];
+        await user.save();
+        res.cookie("refreshToken", newRefreshToken, {
+          httpOnly: true,
+          // sameSite: "none",
+          // secure: true,
+          maxAge: 24 * 60 * 60 * 1000,
+        });
+        res.json({ accessToken });
+      }
+    );
+  }
 });

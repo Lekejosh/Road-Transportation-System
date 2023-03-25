@@ -136,6 +136,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "user",
     },
+    refreshToken:[string],
     generatedOtp: String,
     resetPasswordToken: String,
     resetPasswordExpire: Date,
@@ -152,9 +153,9 @@ userSchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, 10);
 });
 
-userSchema.methods.getJWTToken = function () {
-  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE,
+userSchema.methods.getAccessToken = function () {
+  return jwt.sign({ id: this._id }, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: process.env.ACCESS_TOKEN_EXPIRE,
   });
 };
 
