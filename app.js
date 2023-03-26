@@ -7,7 +7,7 @@ const bodyParser = require("body-parser");
 const checkTrips = require("./middlewares/serviceWorker");
 const cors = require("cors");
 const credentials = require("./middlewares/credentials");
-const corsOptions = require("./config/corsOptions");
+// const corsOptions = require("./config/corsOptions");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -18,7 +18,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //     credentials: true,
 //   })
 // );
-app.use(cors({ credentials: true, origin: true }));
+const corsOptions = {
+  credentials: true,
+  origin: true,
+};
+
+app.use(cors());
+
 // app.use(cors(corsOptions));
 // app.use(function (req, res, next) {
 //   res.header("Access-Control-Allow-Origin", "http://localhost:4000"); // set the origin of the request
