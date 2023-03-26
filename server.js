@@ -20,7 +20,7 @@ mongoose.set("strictQuery", true);
 mongoose
   .connect(`${process.env.DB_URI_1}/${process.env.DB_NAME}`)
   .then(() =>
-    app.listen(process.env.PORT_1, () => {
+    app.listen(process.env.PORT, () => {
       console.log(`Server is working on http://localhost:${process.env.PORT}`);
     })
   )
