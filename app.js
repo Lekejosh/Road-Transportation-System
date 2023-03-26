@@ -14,7 +14,7 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: [process.env.CORS_1, process.env.CORS_2, process.env.CORS_3],
+    origin: ["http://localhost:4000", process.env.CORS_2, process.env.CORS_3],
   })
 );
 
