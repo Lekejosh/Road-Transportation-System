@@ -188,7 +188,7 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
     // secure: true,
     // sameSite: "None",
   });
-  user.refreshToken = [...newRefreshTokenArray, newRefreshToken]
+  user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
   res.cookie("refreshToken", newRefreshToken, {
     httpOnly: true,
     // sameSite: "none",
@@ -203,16 +203,22 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
 });
 
 exports.logoutUser = catchAsyncErrors(async (req, res, next) => {
-  console.log(req);
-  const user = await User.findById(req.user.id);
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken)
+    return next(new ErrorHandler("Refresh token not present", 400));
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    // secure: true,
+    // sameSite: "None",
+  });
+  const user = await User.findOne({ refreshToken: refreshToken });
+  if (!user)
+    return next(new ErrorHandler("User not found or already logged out", 404));
+
+  user.refreshToken = user.refreshToken.filter((re) => re !== refreshToken);
   user.logoutTime = Date.now();
   await user.save();
-
-  res.cookie("token", null, {
-    expires: new Date(Date.now()),
-    httpOnly: true,
-  });
-  res.status(200).json({ success: true });
+  res.status(200).json({ success: true, message: "Logged out successfully" });
 });
 
 exports.updateProfile = catchAsyncErrors(async (req, res, next) => {

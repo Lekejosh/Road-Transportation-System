@@ -13,9 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
-  cors({
-    origin: ["http://localhost:4000", process.env.CORS_2, process.env.CORS_3],
-  })
+  cors()
 );
 
 // app.use(credentials);
