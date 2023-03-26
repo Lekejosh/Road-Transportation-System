@@ -185,14 +185,14 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
   if (!cookies) return next(new ErrorHandler("Refresh token not present", 400));
   res.clearCookie("refreshToken", {
     httpOnly: true,
-    secure: true,
-    sameSite: "None",
+    // secure: true,
+    // sameSite: "None",
   });
   user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
   res.cookie("refreshToken", newRefreshToken, {
     httpOnly: true,
-    sameSite: "none",
-    secure: true,
+    // sameSite: "none",
+    // secure: true,
     maxAge: 24 * 60 * 60 * 1000,
   });
   user.lastLoggedIn = Date.now();
