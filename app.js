@@ -13,9 +13,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(cors(corsOptions));
+app.use(cors({credentials: true,origin: "http://localhost:4000"}));
 
-app.use(credentials);
+// app.use(credentials);
 
 setInterval(checkTrips, 60 * 1000);
 
