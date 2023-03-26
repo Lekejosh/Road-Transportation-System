@@ -185,14 +185,14 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
   if (!cookies) return next(new ErrorHandler("Refresh token not present", 400));
   res.clearCookie("refreshToken", {
     httpOnly: true,
-    secure: true,
-    sameSite: "None",
+    // secure: true,
+    // sameSite: "None",
   });
   user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
   res.cookie("refreshToken", newRefreshToken, {
     httpOnly: true,
-    sameSite: "none",
-    secure: true,
+    // sameSite: "none",
+    // secure: true,
     maxAge: 24 * 60 * 60 * 1000,
   });
   user.lastLoggedIn = Date.now();
@@ -208,8 +208,8 @@ exports.logoutUser = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Refresh token not present", 400));
   res.clearCookie("refreshToken", {
     httpOnly: true,
-    secure: true,
-    sameSite: "None",
+    // secure: true,
+    // sameSite: "None",
   });
   const user = await User.findOne({ refreshToken: refreshToken });
   if (!user)
@@ -615,8 +615,8 @@ exports.refreshToken = catchAsyncErrors(async (req, res, next) => {
   const refreshToken = cookies.refreshToken;
   res.clearCookie("refreshToken", {
     httpOnly: true,
-    sameSite: "none",
-    secure: true,
+    // sameSite: "none",
+    // secure: true,
   });
 
   const user = await User.findOne({ refreshToken: refreshToken });
@@ -664,8 +664,8 @@ exports.refreshToken = catchAsyncErrors(async (req, res, next) => {
         await user.save();
         res.cookie("refreshToken", newRefreshToken, {
           httpOnly: true,
-          sameSite: "none",
-          secure: true,
+          // sameSite: "none",
+          // secure: true,
           maxAge: 24 * 60 * 60 * 1000,
         });
         res.json({ accessToken });
