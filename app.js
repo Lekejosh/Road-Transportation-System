@@ -12,22 +12,26 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(
+  cors({
+    origin: "http://localhost:4000",
+    credentials: true,
+  })
+);
+// app.use(function (req, res, next) {
+//   res.header("Access-Control-Allow-Origin", "http://localhost:4000"); // set the origin of the request
+//   res.header("Access-Control-Allow-Credentials", true); // allow cookies, authorization headers, and SSL client certificates to be sent
+//   res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE"); // specify the allowed HTTP methods
+//   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization"); // specify the allowed headers
 
-// app.use(cors({credentials: true,origin: "http://localhost:4000"}));
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://localhost:4000"); // set the origin of the request
-  res.header("Access-Control-Allow-Credentials", true); // allow cookies, authorization headers, and SSL client certificates to be sent
-  res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE"); // specify the allowed HTTP methods
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization"); // specify the allowed headers
+//   if (req.method === "OPTIONS") {
+//     res.sendStatus(200); // handle the preflight request
+//   } else {
+//     next(); // move on to the next middleware
+//   }
+// });
 
-  if (req.method === "OPTIONS") {
-    res.sendStatus(200); // handle the preflight request
-  } else {
-    next(); // move on to the next middleware
-  }
-});
-
-// app.use(credentials);
+app.use(credentials);
 
 setInterval(checkTrips, 60 * 1000);
 
