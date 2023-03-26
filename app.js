@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // app.use(cors({credentials: true,origin: "http://localhost:4000"}));
 app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // set the origin of the request
+  res.header("Access-Control-Allow-Origin", "http://localhost:4000"); // set the origin of the request
   res.header("Access-Control-Allow-Credentials", true); // allow cookies, authorization headers, and SSL client certificates to be sent
   res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE"); // specify the allowed HTTP methods
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization"); // specify the allowed headers
