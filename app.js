@@ -18,7 +18,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //     credentials: true,
 //   })
 // );
-app.use(cors(corsOptions));
+app.use(cors({ credentials: true, origin: true }));
+// app.use(cors(corsOptions));
 // app.use(function (req, res, next) {
 //   res.header("Access-Control-Allow-Origin", "http://localhost:4000"); // set the origin of the request
 //   res.header("Access-Control-Allow-Credentials", true); // allow cookies, authorization headers, and SSL client certificates to be sent
@@ -32,7 +33,7 @@ app.use(cors(corsOptions));
 //   }
 // });
 
-app.use(credentials);
+// app.use(credentials);
 
 setInterval(checkTrips, 60 * 1000);
 
