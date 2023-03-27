@@ -70,7 +70,7 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
   user.refreshToken = [newRefreshToken];
   user.save();
   res.cookie("refreshToken", newRefreshToken, {
-    httpOnly: true,
+   httpOnly: false,
     // sameSite: "none",
     // secure: true,
     maxAge: 24 * 60 * 60 * 1000,
@@ -177,20 +177,20 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
     const refreshToken = cookies.refreshToken;
     const foundToken = await User.findOne({ refreshToken });
     if (!foundToken) {
-      console.log("Refresh token reuse");
+     
       newRefreshTokenArray = [];
     }
   }
 
   if (!cookies) return next(new ErrorHandler("Refresh token not present", 400));
   res.clearCookie("refreshToken", {
-    httpOnly: true,
+   httpOnly: false,
     // secure: true,
     // sameSite: "None",
   });
   user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
   res.cookie("refreshToken", newRefreshToken, {
-    httpOnly: true,
+   httpOnly: false,
     // sameSite: "none",
     // secure: true,
     maxAge: 24 * 60 * 60 * 1000,
@@ -205,9 +205,9 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
 exports.logoutUser = catchAsyncErrors(async (req, res, next) => {
   const refreshToken = req.cookies.refreshToken;
   if (!refreshToken)
-    return next(new ErrorHandler("Refresh token not present", 400));
+    return next(new ErrorHandler("Refresh token not present", 401));
   res.clearCookie("refreshToken", {
-    httpOnly: true,
+   httpOnly: false,
     // secure: true,
     // sameSite: "None",
   });
@@ -461,7 +461,7 @@ exports.createDriverReview = catchAsyncErrors(async (req, res, next) => {
   }
 
   if (user.role !== "driver") {
-    return next(new ErrorHandler("Can't Rate This User", 401));
+    return next(new ErrorHandler("Can't Rate This User", 400));
   }
 
   const isReviewed = user.reviews.find(
@@ -608,19 +608,21 @@ exports.deleteDriverReview = catchAsyncErrors(async (req, res, next) => {
 
 exports.refreshToken = catchAsyncErrors(async (req, res, next) => {
   const cookies = req.cookies;
+  
   if (!cookies?.refreshToken) {
     return next(new ErrorHandler("No Cookie present", 401));
   }
 
   const refreshToken = cookies.refreshToken;
   res.clearCookie("refreshToken", {
-    httpOnly: true,
+   httpOnly: false,
     // sameSite: "none",
     // secure: true,
   });
 
   const user = await User.findOne({ refreshToken: refreshToken });
   if (!user) {
+  
     jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET,
@@ -628,6 +630,7 @@ exports.refreshToken = catchAsyncErrors(async (req, res, next) => {
         if (err) {
           return next(new ErrorHandler("Forbidden", 403));
         }
+        console.log("Hackeeddd")
         const hackedUser = await User.findById(decoded.id);
         hackedUser.refreshToken = [];
         await hackedUser.save();
@@ -646,6 +649,7 @@ exports.refreshToken = catchAsyncErrors(async (req, res, next) => {
         user.refreshToken = [...newRefresTokenArray];
         const result = await user.save();
         if (err || user._id.toString() !== decoded.id) {
+          
           return next(new ErrorHandler("Forbidden", 403));
         }
 
@@ -663,7 +667,7 @@ exports.refreshToken = catchAsyncErrors(async (req, res, next) => {
         user.refreshToken = [...newRefresTokenArray, newRefreshToken];
         await user.save();
         res.cookie("refreshToken", newRefreshToken, {
-          httpOnly: true,
+         httpOnly: false,
           // sameSite: "none",
           // secure: true,
           maxAge: 24 * 60 * 60 * 1000,
