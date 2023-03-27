@@ -20,9 +20,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //   origin: true,
 // };
 
-app.use(cors(corsOptions));
-
 app.use(credentials);
+app.use(cors(corsOptions));
 
 setInterval(checkTrips, 60 * 1000);
 
