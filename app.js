@@ -8,11 +8,13 @@ const checkTrips = require("./middlewares/serviceWorker");
 const cors = require("cors");
 const credentials = require("./middlewares/credentials");
 const corsOptions = require("./config/corsOptions");
+// const { logger } = require("./middlewares/logger");
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
-
+// app.use(logger);
 // const corsOptions = {
 //   credentials: true,
 //   origin: true,
