@@ -18,7 +18,7 @@ const corsOptions = {
   origin: true,
 };
 
-app.use(cors(corsOptions));
+app.use(cors());
 
 // app.use(credentials);
 
