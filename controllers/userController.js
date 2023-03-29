@@ -102,7 +102,7 @@ exports.verifyEmail = catchAsyncErrors(async (req, res, next) => {
     html: "Account Verified Successfully",
   });
 
-  res.status(200).json({ success: true });
+  res.status(200).json({ success: true,message:"Email Verified Successfully" });
 });
 
 exports.resendOtp = catchAsyncErrors(async (req, res, next) => {
