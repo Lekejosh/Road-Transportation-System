@@ -299,7 +299,7 @@ exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
 
   const resetPasswordUrl = `${req.protocol}://${req.get(
     "origin"
-  )}/password/reset/${resetToken}`;
+  )}/password?token=${resetToken}`;
 
   const message = `Your password reset Token is :-\n\n ${resetPasswordUrl} \n\nif you have not requested this email then, please Ignore it`;
   try {
