@@ -223,11 +223,19 @@ exports.logoutUser = catchAsyncErrors(async (req, res, next) => {
 });
 
 exports.updateProfile = catchAsyncErrors(async (req, res, next) => {
-  const profileUpdate = {
-    mobileNumber: req.body.mobileNumber,
-    nextOfKin: req.body.nextOfKin,
-    nextOfKinPhoneNumber: req.body.nextOfKinPhoneNumber,
-  };
+  const profileUpdate = {};
+
+  if (req.body.mobileNumber) {
+    profileUpdate.mobileNumber = req.body.mobileNumber;
+  }
+
+  if (req.body.nextOfKin) {
+    profileUpdate.nextOfKin = req.body.nextOfKin;
+  }
+
+  if (req.body.nextOfKinPhoneNumber) {
+    profileUpdate.nextOfKinPhoneNumber = req.body.nextOfKinPhoneNumber;
+  }
 
   await User.findByIdAndUpdate(req.user.id, profileUpdate);
   res
