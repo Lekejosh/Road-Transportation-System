@@ -102,7 +102,9 @@ exports.verifyEmail = catchAsyncErrors(async (req, res, next) => {
     html: "Account Verified Successfully",
   });
 
-  res.status(200).json({ success: true,message:"Email Verified Successfully" });
+  res
+    .status(200)
+    .json({ success: true, message: "Email Verified Successfully" });
 });
 
 exports.resendOtp = catchAsyncErrors(async (req, res, next) => {
@@ -223,10 +225,14 @@ exports.logoutUser = catchAsyncErrors(async (req, res, next) => {
 exports.updateProfile = catchAsyncErrors(async (req, res, next) => {
   const profileUpdate = {
     mobileNumber: req.body.mobileNumber,
+    nextOfKin: req.body.nextOfKin,
+    nextOfKinPhoneNumber: req.body.nextOfKinPhoneNumber,
   };
 
   await User.findByIdAndUpdate(req.user.id, profileUpdate);
-  res.status(200).json({ success: true });
+  res
+    .status(200)
+    .json({ success: true, message: "Profile Updated Successfully" });
 });
 
 exports.userDetails = catchAsyncErrors(async (req, res, next) => {
