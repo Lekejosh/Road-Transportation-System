@@ -36,7 +36,6 @@ const userSchema = new mongoose.Schema(
 
     mobileNumber: {
       type: String,
-      required: [true, "Please Input Mobile Number"],
     },
     originState: {
       type: String,
@@ -48,11 +47,9 @@ const userSchema = new mongoose.Schema(
     },
     nextOfKin: {
       type: String,
-      required: [true, "Please Input Next Of Kin "],
     },
     nextOfKinPhoneNumber: {
       type: String,
-      required: [true, "Please Input Next of Kin Mobile Number"],
     },
     departureState: {
       type: String,
@@ -136,7 +133,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "user",
     },
-    refreshToken:[String],
+    refreshToken: [String],
     generatedOtp: String,
     resetPasswordToken: String,
     resetPasswordExpire: Date,
