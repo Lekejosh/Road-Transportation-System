@@ -14,11 +14,14 @@ const jwt = require("jsonwebtoken");
 //TODO: User  Avatar upload using cloudinary and Multer
 //TODO: Driver license Front & Back Upload, Using Cloudinary and Multer
 exports.registerUser = catchAsyncErrors(async (req, res, next) => {
-  const myCloud = await cloudinary.v2.uploader.upload(req.file.path, {
-    folder: "Transport",
-    width: 150,
-    crop: "scale",
-  });
+ const myCloud = await cloudinary.v2.uploader.upload(req.file.path, {
+   folder: "Transport",
+   width: 1200,
+   height: 630,
+   crop: "fill",
+   gravity: "center",
+ });
+
   const {
     firstName,
     lastName,
@@ -261,11 +264,14 @@ exports.updateAvatar = async (req, res, next) => {
     await cloudinary.v2.uploader.destroy(user.avatar.public_id);
   }
 
-  const result = await cloudinary.v2.uploader.upload(req.file.path, {
-    folder: "Transport",
-    width: 150,
-    crop: "scale",
-  });
+ const result = await cloudinary.v2.uploader.upload(req.file.path, {
+   folder: "Transport",
+   width: 1200,
+   height: 630,
+   crop: "fill",
+   gravity: "center",
+ });
+
 
   user.avatar = {
     public_id: result.public_id,
