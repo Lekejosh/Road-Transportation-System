@@ -14,13 +14,15 @@ const {
   updateAvatar,
   userDetails,
   refreshToken,
+  newEmail,
 } = require("../controllers/userController");
 const upload = require("../utils/multer");
-const { isAuthenticatedUser } = require("../middlewares/auth");
+const { isAuthenticatedUser, checkVerified } = require("../middlewares/auth");
 
 router.route("/register").post(upload.single("avatar"), registerUser);
 router.route("/login").post(loginUser);
-router.route('/me').get(isAuthenticatedUser,userDetails)
+router.route("/me").get(isAuthenticatedUser, userDetails);
+router.route("/new/email").patch(isAuthenticatedUser, newEmail);
 router
   .route("/email/verification")
   .post(isAuthenticatedUser, verifyEmail)
@@ -28,9 +30,16 @@ router
 router.route("/logout").get(isAuthenticatedUser, logoutUser);
 router
   .route("/update")
-  .put(isAuthenticatedUser, updateProfile)
-  .post(isAuthenticatedUser, updatePassword);
-router.route("/update/avatar").put(upload.single("avatar"),isAuthenticatedUser, updateAvatar);
+  .put(isAuthenticatedUser, checkVerified, updateProfile)
+  .post(isAuthenticatedUser, checkVerified, updatePassword);
+router
+  .route("/update/avatar")
+  .put(
+    upload.single("avatar"),
+    isAuthenticatedUser,
+    checkVerified,
+    updateAvatar
+  );
 router.route("/password/forgot").post(forgotPassword);
 
 router.route("/password/reset/:token").put(resetPassword);

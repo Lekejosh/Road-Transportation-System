@@ -6,21 +6,16 @@ const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const sendToken = require("../utils/jwtToken");
 const { generateOTP } = require("../utils/otpGenerator");
 const cloudinary = require("cloudinary");
-const upload = require("../utils/multer");
 const jwt = require("jsonwebtoken");
 
-//TODO: install Cloudinary
-//TODO: install Multer
-//TODO: User  Avatar upload using cloudinary and Multer
-//TODO: Driver license Front & Back Upload, Using Cloudinary and Multer
 exports.registerUser = catchAsyncErrors(async (req, res, next) => {
- const myCloud = await cloudinary.v2.uploader.upload(req.file.path, {
-   folder: "Transport",
-   width: 1200,
-   height: 630,
-   crop: "fill",
-   gravity: "center",
- });
+  const myCloud = await cloudinary.v2.uploader.upload(req.file.path, {
+    folder: "Transport",
+    width: 1200,
+    height: 630,
+    crop: "fill",
+    gravity: "center",
+  });
 
   const {
     firstName,
@@ -44,6 +39,7 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
     nextOfKin,
     nextOfKinPhoneNumber,
     generatedOtp: generateOTP(),
+    generatedOtpExpire: Date.now() + 15 * 60 * 1000,
     avatar: {
       public_id: myCloud.public_id,
       url: myCloud.secure_url,
@@ -51,7 +47,7 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
   });
 
   try {
-    const data = `Your email Verification Token is :-\n\n ${user.generatedOtp} \n\nif you have not requested this email  then, please Ignore it`;
+    const data = `Your email Verification Token is :-\n\n ${user.generatedOtp} (This is only availbale for 15 Minutes!)\n\nif you have not requested this email  then, please Ignore it`;
     await sendEmail({
       email: `${user.firstName} <${user.email}>`,
       subject: "Veritfy Account",
@@ -61,6 +57,7 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
     });
   } catch (err) {
     user.generatedOtp = undefined;
+    user.generatedOtpExpire = undefined;
     await user.save({ validateBeforeSave: false });
     return next(new ErrorHandler(err.message, 500));
   }
@@ -74,8 +71,8 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
   user.save();
   res.cookie("refreshToken", newRefreshToken, {
     httpOnly: true,
-    // sameSite: "none",
-    // secure: true,
+    sameSite: "none",
+    secure: true,
     maxAge: 24 * 60 * 60 * 1000,
   });
 
@@ -84,19 +81,58 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
   sendToken(user, 200, res);
 });
 
+exports.newEmail = catchAsyncErrors(async (req, res, next) => {
+  const exists = await User.findOne(req.body.email);
+  const user = await User.findById(req.user._id);
+  if (exists) {
+    return next(new ErrorHandler("Email already Taken", 400));
+  }
+  if (!user) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+  if (user.isVerified) {
+    return next(new ErrorHandler("Account already verified, not allowed", 400));
+  }
+  user.email = req.body.email;
+  user.generatedOtp = generateOTP();
+  user.generatedOtpExpire = Date.now() + 15 * 60 * 1000;
+  await user.save();
+  try {
+    const data = `Your email Verification Token is :-\n\n ${user.generatedOtp} (This is only availbale for 15 Minutes!)\n\nif you have not requested this email  then, please Ignore it`;
+    await sendEmail({
+      email: `${user.firstName} <${user.email}>`,
+      subject: "Veritfy Account",
+      html: data,
+    }).then(() => {
+      console.log("Email Sent Successfully");
+    });
+  } catch (err) {
+    user.generatedOtp = undefined;
+    user.generatedOtpExpire = undefined;
+    await user.save({ validateBeforeSave: false });
+    return next(new ErrorHandler(err.message, 500));
+  }
+  res.status(200).json({ success: true, message: "Otp sent" });
+});
+
 exports.verifyEmail = catchAsyncErrors(async (req, res, next) => {
   const { otp } = req.body;
-
+  const now = Date.now();
   const user = await User.findById(req.user.id);
 
   if (!user) {
     return next(new ErrorHandler(400));
   }
-  if (otp !== user.generatedOtp) {
-    return next(new ErrorHandler("Invalid OTP Code Provided", 400));
+  if (user.isVerified) {
+    return next(new ErrorHandler("Account Already Verified", 400));
   }
+  if (otp !== user.generatedOtp || user.generatedOtpExpire <= now) {
+    return next(new ErrorHandler("Otp is invalid or Expired", 400));
+  }
+
   user.isVerified = true;
   user.generatedOtp = undefined;
+  user.generatedOtpExpire = undefined;
   await user.save();
 
   await sendEmail({
@@ -119,9 +155,10 @@ exports.resendOtp = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Email Address already Verified", 400));
   }
   user.generatedOtp = generateOTP();
+  user.generatedOtpExpire = Date.now() + 15 * 60 * 1000;
   await user.save();
   try {
-    const data = `Your email Verification Token is :-\n\n ${user.generatedOtp} \n\nif you have not requested this email  then, please Ignore it`;
+    const data = `Your email Verification Token is :-\n\n ${user.generatedOtp} (This is only availbale for 15 Minutes!)\n\nif you have not requested this email  then, please Ignore it`;
     await sendEmail({
       email: `${user.firstName} <${user.email}>`,
       subject: "Veritfy Account",
@@ -131,10 +168,11 @@ exports.resendOtp = catchAsyncErrors(async (req, res, next) => {
     });
   } catch (err) {
     user.generatedOtp = undefined;
+    user.generatedOtpExpire = undefined;
     await user.save({ validateBeforeSave: false });
     return next(new ErrorHandler(err.message, 500));
   }
-  res.status(200).json({ success: true });
+  res.status(200).json({ success: true, message: "Otp sent" });
 });
 
 exports.loginUser = catchAsyncErrors(async (req, res, next) => {
@@ -161,11 +199,15 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
   }).select("+password");
 
   if (!user) {
-    return next(new ErrorHandler("Invalid Mobile Number/Email", 400));
+    return next(
+      new ErrorHandler("Invalid Mobile Number/Email and Password", 406)
+    );
   }
   const isPasswordMatched = await user.comparePassword(password);
   if (!isPasswordMatched) {
-    return next(new ErrorHandler("Invalid password", 400));
+    return next(
+      new ErrorHandler("Invalid Mobile Number/Email and Password", 406)
+    );
   }
 
   const newRefreshToken = jwt.sign(
@@ -264,14 +306,13 @@ exports.updateAvatar = async (req, res, next) => {
     await cloudinary.v2.uploader.destroy(user.avatar.public_id);
   }
 
- const result = await cloudinary.v2.uploader.upload(req.file.path, {
-   folder: "Transport",
-   width: 1200,
-   height: 630,
-   crop: "fill",
-   gravity: "center",
- });
-
+  const result = await cloudinary.v2.uploader.upload(req.file.path, {
+    folder: "Transport",
+    width: 1200,
+    height: 630,
+    crop: "fill",
+    gravity: "center",
+  });
 
   user.avatar = {
     public_id: result.public_id,
@@ -624,6 +665,7 @@ exports.deleteDriverReview = catchAsyncErrors(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
+    message: "Deleted Successfully",
   });
 });
 

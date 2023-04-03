@@ -10,7 +10,11 @@ const {
   deleteDriverReview,
 } = require("../controllers/userController");
 const upload = require("../utils/multer");
-const { isAuthenticatedUser, authorizeRole } = require("../middlewares/auth");
+const {
+  isAuthenticatedUser,
+  authorizeRole,
+  checkVerified,
+} = require("../middlewares/auth");
 router.route("/register").put(
   upload.fields([
     { name: "licenceFront", maxCount: 1 },
@@ -20,17 +24,20 @@ router.route("/register").put(
     { name: "carImageSide", maxCount: 1 },
   ]),
   isAuthenticatedUser,
+  checkVerified,
   registerDriver
 );
 
-router.route("/all").get(isAuthenticatedUser,authorizeRole('admin'), findDriver);
-router.route("/id").get(isAuthenticatedUser, findOneDriver);
+router
+  .route("/all")
+  .get(isAuthenticatedUser, checkVerified, authorizeRole("admin"), findDriver);
+router.route("/id").get(isAuthenticatedUser, checkVerified, findOneDriver);
 router
   .route("/review")
-  .post(isAuthenticatedUser, createDriverReview)
-  .get(isAuthenticatedUser, getDriverReviews);
+  .post(isAuthenticatedUser, checkVerified, createDriverReview)
+  .get(isAuthenticatedUser, checkVerified, getDriverReviews);
 router.route("/get/review/:driverId");
 router
   .route("/reviews/:reviewId")
-  .delete(isAuthenticatedUser, deleteDriverReview);
+  .delete(isAuthenticatedUser, checkVerified, deleteDriverReview);
 module.exports = router;

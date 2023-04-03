@@ -11,26 +11,34 @@ const {
   searchTrips,
 } = require("../controllers/transportController");
 
-const { isAuthenticatedUser, authorizeRole } = require("../middlewares/auth");
+const {
+  isAuthenticatedUser,
+  authorizeRole,
+  checkVerified,
+} = require("../middlewares/auth");
 
 router
   .route("/create")
-  .post(isAuthenticatedUser, authorizeRole("driver"), createTransport);
+  .post(
+    isAuthenticatedUser,
+    checkVerified,authorizeRole("driver"),
+    createTransport
+  );
 
 router
   .route("/trip/update")
-  .put(isAuthenticatedUser, authorizeRole("driver"), tripUpdate);
-router.route("/state").get(isAuthenticatedUser, getTripByState);
+  .put(isAuthenticatedUser,checkVerified, authorizeRole("driver"), tripUpdate);
+router.route("/state").get(isAuthenticatedUser,checkVerified, getTripByState);
 router
   .route("/trip/complete/:id")
-  .get(isAuthenticatedUser, authorizeRole("driver"), isComplete);
+  .get(isAuthenticatedUser,checkVerified, authorizeRole("driver"), isComplete);
 
 router.route("/").get(availableTrip)
 router.route("/search").get(searchTrips)
 router
   .route("/delete/:id")
   .delete(
-    isAuthenticatedUser,
+    isAuthenticatedUser,checkVerified,
     authorizeRole("driver", "admin"),
     deleteTransport
   );

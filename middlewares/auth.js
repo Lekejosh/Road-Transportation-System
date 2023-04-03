@@ -6,7 +6,12 @@ const User = require("../models/userModel");
 exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
   const authHeader = req.headers["authorization"];
   if (!authHeader) {
-    return next(new ErrorHandler("Please Login to access this resource", 401));
+    return next(
+      new ErrorHandler(
+        "Please Login to access this resource / No Authorization token present",
+        401
+      )
+    );
   }
   const token = authHeader.split(" ")[1];
   const decodedData = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
@@ -27,3 +32,13 @@ exports.authorizeRole = (...roles) => {
     next();
   };
 };
+exports.checkVerified = catchAsyncErrors(async (req, res, next) => {
+  const user = req.user;
+  if (!user.isVerified) {
+    return res.status(403).json({
+      success: false,
+      message: "Account not verified, Please Verify account",
+    });
+  }
+  next();
+});

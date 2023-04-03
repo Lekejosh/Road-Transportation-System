@@ -21,44 +21,101 @@ const {
   getAllAdmin,
 } = require("../controllers/adminController");
 
-const { isAuthenticatedUser, authorizeRole } = require("../middlewares/auth");
+const { isAuthenticatedUser,checkVerified, authorizeRole } = require("../middlewares/auth");
 
 // Users
-router.route('/user-create').post(isAuthenticatedUser,authorizeRole("admin"),createUser);
-router.route("/users").get(isAuthenticatedUser, getAllUsers);
+router
+  .route("/user-create")
+  .post(isAuthenticatedUser, checkVerified, authorizeRole("admin"), createUser);
+router
+  .route("/users")
+  .get(isAuthenticatedUser, checkVerified, authorizeRole("admin"), getAllUsers);
 router
   .route("/user/:id")
-  .get(isAuthenticatedUser, authorizeRole("admin"), getUser)
-  .delete(isAuthenticatedUser, authorizeRole("admin"), deleteUser)
-  .patch(isAuthenticatedUser, authorizeRole("admin"), updateUser);
-
+  .get(isAuthenticatedUser, checkVerified, authorizeRole("admin"), getUser)
+  .delete(
+    isAuthenticatedUser,
+    checkVerified,
+    authorizeRole("admin"),
+    deleteUser
+  )
+  .patch(
+    isAuthenticatedUser,
+    checkVerified,
+    authorizeRole("admin"),
+    updateUser
+  );
 
 //Driver
 router
   .route("/drivers")
-  .get(isAuthenticatedUser, authorizeRole("admin"), getAllDrivers);
+  .get(
+    isAuthenticatedUser,
+    checkVerified,
+    authorizeRole("admin"),
+    getAllDrivers
+  );
 router
   .route("/driver/:id")
-  .get(isAuthenticatedUser, authorizeRole("admin"), getDriver)
-  .patch(isAuthenticatedUser, authorizeRole("admin"), updateDriver)
-  .delete(isAuthenticatedUser, authorizeRole("admin"), deleteDriver);
+  .get(isAuthenticatedUser, checkVerified, authorizeRole("admin"), getDriver)
+  .patch(
+    isAuthenticatedUser,
+    checkVerified,
+    authorizeRole("admin"),
+    updateDriver
+  )
+  .delete(
+    isAuthenticatedUser,
+    checkVerified,
+    authorizeRole("admin"),
+    deleteDriver
+  );
 
 //Admin
-router.route("/create").post(isAuthenticatedUser,authorizeRole("admin"),createAdmin)
-router.route("/all/admin").get(isAuthenticatedUser,authorizeRole("admin"),getAllAdmin)
+router
+  .route("/create")
+  .post(
+    isAuthenticatedUser,
+    checkVerified,
+    authorizeRole("admin"),
+    createAdmin
+  );
+router
+  .route("/all/admin")
+  .get(isAuthenticatedUser, checkVerified, authorizeRole("admin"), getAllAdmin);
 router
   .route("/admin/find/:id")
-  .get(isAuthenticatedUser, authorizeRole("admin"), getAdmin)
-  .patch(isAuthenticatedUser, authorizeRole("admin"),updateAdmin)
-  .delete(isAuthenticatedUser, authorizeRole("admin"), deleteAdmin);
+  .get(isAuthenticatedUser, checkVerified, authorizeRole("admin"), getAdmin)
+  .patch(
+    isAuthenticatedUser,
+    checkVerified,
+    authorizeRole("admin"),
+    updateAdmin
+  )
+  .delete(
+    isAuthenticatedUser,
+    checkVerified,
+    authorizeRole("admin"),
+    deleteAdmin
+  );
 // Transport
 router
   .route("/daily")
-  .get(isAuthenticatedUser, authorizeRole("admin"), getAllTrips);
+  .get(isAuthenticatedUser, checkVerified, authorizeRole("admin"), getAllTrips);
 router
   .route("/trip/:id")
-  .get(isAuthenticatedUser, authorizeRole("admin"), getSingleTrip);
+  .get(
+    isAuthenticatedUser,
+    checkVerified,
+    authorizeRole("admin"),
+    getSingleTrip
+  );
 router
   .route("/summary")
-  .get(isAuthenticatedUser, authorizeRole("admin"), getDailyReport);
+  .get(
+    isAuthenticatedUser,
+    checkVerified,
+    authorizeRole("admin"),
+    getDailyReport
+  );
 module.exports = router;
