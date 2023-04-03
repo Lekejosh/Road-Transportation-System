@@ -82,11 +82,9 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
 });
 
 exports.newEmail = catchAsyncErrors(async (req, res, next) => {
-  const exists = await User.findOne(req.body.email);
+
   const user = await User.findById(req.user._id);
-  if (exists) {
-    return next(new ErrorHandler("Email already Taken", 400));
-  }
+  
   if (!user) {
     return next(new ErrorHandler("User not found", 404));
   }
