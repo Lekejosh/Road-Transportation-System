@@ -23,12 +23,12 @@ This project is a mini for a road transportation reservation system, where custo
 
 ### Steps
 * Clone this repository [here](https://github.com/Lekejosh/Road-Transportation-System.git).
-* The master branch is the most at any given time, ensure you're working from it.
+* The master branch is the most stable at any given time, ensure you're working from it.
 * Run "npm install" to install all dependencies
 * Create an .env file in your project root folder and add your variables. See .env.sample for assistance.
 
 ### Usage
-* Run npm start to start the application.
+* Run 'npm start' to start the application.
 * Connect to the API using Postman on port 8080.
 
 ## API Endpoints
