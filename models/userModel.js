@@ -131,11 +131,12 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
+      enum: ["user", "driver", "admin"],
       default: "user",
     },
     refreshToken: [String],
     generatedOtp: String,
-    generatedOtpExpire:Date,
+    generatedOtpExpire: Date,
     resetPasswordToken: String,
     resetPasswordExpire: Date,
   },
