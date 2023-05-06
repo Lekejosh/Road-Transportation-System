@@ -45,7 +45,7 @@ This project is a mini for a road transportation reservation system, where custo
 
 - After installing Docker desktop on your PC
 - Change your DB_URI to 'mongodb://mongo_db:27017'
-- Run 'docker compose up'
+- Run `npm start:docker`
 
 ## API Endpoints
 
