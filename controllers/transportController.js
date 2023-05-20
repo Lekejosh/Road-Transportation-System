@@ -9,7 +9,8 @@ const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 //TODO: Test the Mail Service worker
 
 exports.createTransport = catchAsyncErrors(async (req, res, next) => {
-  const { totalSeat, plateNumber, vehicle, departureState, price } = req.body;
+  const { totalSeat, plateNumber, vehicleName, departureState, price } =
+    req.body;
 
   const startOfToday = new Date().setHours(0, 0, 0, 0);
   const startOfTomorrow = new Date().setHours(24, 0, 0, 0);
@@ -28,7 +29,7 @@ exports.createTransport = catchAsyncErrors(async (req, res, next) => {
     totalSeat,
     bookedSeat: totalSeat,
     plateNumber,
-    vehicle,
+    vehicleName,
     departureState,
     price,
     date: Date.now(),

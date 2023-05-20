@@ -72,7 +72,7 @@ This project is a mini for a road transportation reservation system, where custo
 | ---------- | -------------------------------- | -------------------------------------------------------------------- |
 | POST       | /api/v1/driver/register          | For already Registered user who want to upgrade to becoming a driver |
 | GET        | /api/v1/driver/all               | For users to get all available drivers                               |
-| GET        | /api/v1/driver/id                | To get a driver                                                      |
+| GET        | /api/v1/driver/:id                | To get a driver                                                      |
 | POST       | /api/v1/driver/review            | To review a driver after a successful ride                           |
 | GET        | /api/v1/driver/review            | To get driver review                                                 |
 | DELETE     | /api/v1/driver/reviews/:reviewId | To delete review                                                     |
