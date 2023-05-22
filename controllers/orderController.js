@@ -5,6 +5,8 @@ const sendEmail = require("../utils/sendMail");
 const ApiFeatures = require("../utils/apiFeatures");
 const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
+const { v4: uuidv4 } = require("uuid");
+const https = require("https");
 
 //TODO: Create a service worker that sends mail to users of a paid transport 30mins before the start of trip
 
@@ -79,7 +81,6 @@ exports.newOrder = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-
 exports.payOrder = catchAsyncErrors(async (req, res, next) => {
   const order = await Order.findById(req.params.id);
 
@@ -102,6 +103,70 @@ exports.payOrder = catchAsyncErrors(async (req, res, next) => {
   order.save();
 
   res.status(200).json({ success: true });
+});
+
+exports.intializePayment = catchAsyncErrors(async (req, res, next) => {
+  const orderId = req.params.orderId;
+
+  if (!orderId) return next(new ErrorHandler("Order Id not Provided", 400));
+
+  const order = await Order.findById(orderId);
+
+  if (!order) return next(new ErrorHandler("Order Not Found", 404));
+
+  const referenceId = uuidv4();
+
+  const params = JSON.stringify({
+    email: req.user.email,
+    amount: order.totalPrice * 100,
+    reference: referenceId,
+    callback_url: `http://localhost:4000/api/v1/order/payment/success?orderId=${order._id}&reference=${referenceId}`,
+  });
+
+  const options = {
+    hostname: "api.paystack.co",
+    port: 443,
+    path: "/transaction/initialize",
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+      "Content-Type": "application/json",
+    },
+  };
+
+  const requests = https
+    .request(options, (response) => {
+      let data = "";
+
+      response.on("data", (chunk) => {
+        data += chunk;
+      });
+
+      response.on("end", () => {
+        res.json(JSON.parse(data));
+      });
+    })
+    .on("error", (error) => {
+      console.error(error);
+    });
+
+  requests.write(params);
+  requests.end();
+});
+
+exports.paymentSuccessCallback = catchAsyncErrors(async (req, res, next) => {
+  const { orderId, reference } = req.query;
+  if (!orderId || !reference)
+    return next(new ErrorHandler("Order Id or Refrence Id not provided", 400));
+
+  const order = await Order.findById(orderId);
+  if (!order) return next(new ErrorHandler("Order not found", 404));
+
+  order.paymentInfo.status = "success";
+  order.paymentInfo.id = reference[0].toString();
+  await order.save();
+
+  res.status(200).json({ success: true, order });
 });
 
 exports.getSingleOrder = catchAsyncErrors(async (req, res, next) => {

@@ -14,11 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(logger);
-// const corsOptions = {
-//   credentials: true,
-//   origin: true,
-// };
+
 
 app.use(credentials);
 app.use(cors(corsOptions));
