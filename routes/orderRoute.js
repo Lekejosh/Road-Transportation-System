@@ -6,7 +6,6 @@ const {
   getSingleOrder,
   getAllOrders,
   deleteTrip,
-  payOrder,
   intializePayment,
   paymentSuccessCallback,
 } = require("../controllers/orderController");
@@ -23,7 +22,6 @@ router
   .get(isAuthenticatedUser, checkVerified, getSingleOrder);
 router.route("/all").get(isAuthenticatedUser, checkVerified, getAllOrders);
 router.route("/remove").delete(isAuthenticatedUser, checkVerified, deleteTrip);
-router.route("/pay/:id").post(isAuthenticatedUser, checkVerified, payOrder);
 router
   .route("/initialize/:orderId")
   .get(isAuthenticatedUser, checkVerified, intializePayment);

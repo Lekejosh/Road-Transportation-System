@@ -81,30 +81,6 @@ exports.newOrder = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-exports.payOrder = catchAsyncErrors(async (req, res, next) => {
-  const order = await Order.findById(req.params.id);
-
-  if (order.paymentInfo.status === "paid") {
-    return next(new ErrorHandler("You Have Paid for this trip already", 400));
-  }
-  const transport = await Transport.findById(order.transport);
-  const seatNo = transport.bookedSeat - transport.totalSeat + 1;
-  await order.updateOne({
-    paymentInfo: {
-      id: req.body.id,
-      status: req.body.status,
-    },
-    seatNo: seatNo,
-  });
-  let item = order.orderItem;
-
-  await updateSeat(order.transport, item.quantity);
-
-  order.save();
-
-  res.status(200).json({ success: true });
-});
-
 exports.intializePayment = catchAsyncErrors(async (req, res, next) => {
   const orderId = req.params.orderId;
 
@@ -161,10 +137,16 @@ exports.paymentSuccessCallback = catchAsyncErrors(async (req, res, next) => {
 
   const order = await Order.findById(orderId);
   if (!order) return next(new ErrorHandler("Order not found", 404));
+  const transport = await Transport.findById(order.transport);
+  const seatNo = transport.bookedSeat - transport.totalSeat + 1;
+
+  let item = order.orderItem;
 
   order.paymentInfo.status = "success";
   order.paymentInfo.id = reference[0].toString();
+  order.seatNo = seatNo;
   await order.save();
+  await updateSeat(order.transport, item.quantity);
 
   res.status(200).json({ success: true, order });
 });
