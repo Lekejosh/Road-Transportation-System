@@ -73,8 +73,26 @@ exports.searchTrips = catchAsyncErrors(async (req, res, next) => {
   }
 
   if (date) {
-    const startOfDay = new Date(date).setHours(0, 0, 0, 0);
-    const endOfDay = new Date(date).setHours(23, 59, 59, 999);
+    const selectedDate = new Date(date);
+    const currentDate = new Date();
+
+    if (selectedDate < currentDate) {
+      return next(
+        new ErrorHandler(
+          "Invalid date. Date must be equal to or greater than the current date.",
+          400
+        )
+      );
+    }
+
+    const startOfDay = new Date(selectedDate).setHours(0, 0, 0, 0);
+    const endOfDay = new Date(selectedDate).setHours(23, 59, 59, 999);
+    const dateQuery = { departureTime: { $gte: startOfDay, $lt: endOfDay } };
+    query = { ...query, ...dateQuery };
+  } else {
+    const currentDate = new Date();
+    const startOfDay = new Date(currentDate).setHours(0, 0, 0, 0);
+    const endOfDay = new Date(currentDate).setHours(23, 59, 59, 999);
     const dateQuery = { departureTime: { $gte: startOfDay, $lt: endOfDay } };
     query = { ...query, ...dateQuery };
   }

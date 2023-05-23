@@ -4,7 +4,6 @@ const router = express.Router();
 const {
   tripUpdate,
   createTransport,
-  getTripByState,
   isComplete,
   availableTrip,
   deleteTransport,
