@@ -21,24 +21,26 @@ router
   .route("/create")
   .post(
     isAuthenticatedUser,
-    checkVerified,authorizeRole("driver"),
+    checkVerified,
+    authorizeRole("driver"),
     createTransport
   );
 
 router
   .route("/trip/update")
-  .put(isAuthenticatedUser,checkVerified, authorizeRole("driver"), tripUpdate);
-router.route("/state").get(isAuthenticatedUser,checkVerified, getTripByState);
+  .put(isAuthenticatedUser, checkVerified, authorizeRole("driver"), tripUpdate);
+
 router
   .route("/trip/complete/:id")
-  .get(isAuthenticatedUser,checkVerified, authorizeRole("driver"), isComplete);
+  .get(isAuthenticatedUser, checkVerified, authorizeRole("driver"), isComplete);
 
-router.route("/").get(availableTrip)
-router.route("/search").get(searchTrips)
+router.route("/").get(availableTrip);
+router.route("/search").get(searchTrips);
 router
   .route("/delete/:id")
   .delete(
-    isAuthenticatedUser,checkVerified,
+    isAuthenticatedUser,
+    checkVerified,
     authorizeRole("driver", "admin"),
     deleteTransport
   );

@@ -8,6 +8,7 @@ const {
   deleteTrip,
   intializePayment,
   paymentSuccessCallback,
+  paymentVerification,
 } = require("../controllers/orderController");
 
 const {
@@ -26,5 +27,6 @@ router
   .route("/initialize/:orderId")
   .get(isAuthenticatedUser, checkVerified, intializePayment);
 router.route("/payment/success").get(paymentSuccessCallback);
+router.route("/payment/verify").get(paymentVerification);
 
 module.exports = router;

@@ -9,8 +9,17 @@ const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 //TODO: Test the Mail Service worker
 
 exports.createTransport = catchAsyncErrors(async (req, res, next) => {
-  const { totalSeat, plateNumber, vehicleName, departureState, price } =
-    req.body;
+  const trip = {
+    totalSeat: req.body.totalSeat,
+    plateNumber: req.body.plateNumber,
+    vehicleName: req.body.vehicleName,
+    departureState: req.body.departureState,
+    price: req.body.price,
+    departureState: req.body.departureState,
+    arrivalState: req.body.arrivalState,
+    departureTime: req.body.date + "T" + req.body.time,
+    driver: req.user.id,
+  };
 
   const startOfToday = new Date().setHours(0, 0, 0, 0);
   const startOfTomorrow = new Date().setHours(24, 0, 0, 0);
@@ -25,16 +34,7 @@ exports.createTransport = catchAsyncErrors(async (req, res, next) => {
       new ErrorHandler("Oga, How many Trip you wan take today?👀", 400)
     );
   }
-  const newTransport = await Transport.create({
-    totalSeat,
-    bookedSeat: totalSeat,
-    plateNumber,
-    vehicleName,
-    departureState,
-    price,
-    date: Date.now(),
-    driver: req.user.id,
-  });
+  const newTransport = await Transport.create(trip);
 
   res.status(200).json({ success: true, newTransport });
 });
@@ -56,45 +56,43 @@ exports.tripUpdate = catchAsyncErrors(async (req, res, next) => {
 
   res.status(200).json({ success: true, transport });
 });
-
 exports.searchTrips = catchAsyncErrors(async (req, res, next) => {
   const resultPerPage = 10;
-  const keyword = req.query.search
-    ? {
-        $or: [
-          { departureState: { $regex: req.query.search, $options: "i" } },
-          { arrivalState: { $regex: req.query.search, $options: "i" } },
-        ],
-      }
-    : {};
+  const { search, date, departure, arrival } = req.query;
+
+  let query = { departed: { $ne: true } };
+
+  if (search) {
+    const keywordQuery = {
+      $or: [
+        { departureState: { $regex: search, $options: "i" } },
+        { arrivalState: { $regex: search, $options: "i" } },
+      ],
+    };
+    query = { ...query, ...keywordQuery };
+  }
+
+  if (date) {
+    const startOfDay = new Date(date).setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date).setHours(23, 59, 59, 999);
+    const dateQuery = { departureTime: { $gte: startOfDay, $lt: endOfDay } };
+    query = { ...query, ...dateQuery };
+  }
+
+  if (departure) {
+    query.departureState = departure;
+  }
+
+  if (arrival) {
+    query.arrivalState = arrival;
+  }
 
   const apiFeature = new ApiFeatures(
-    Transport.find({ ...keyword, departed: { $ne: true } }),
+    Transport.find(query),
     req.query
   ).pagination(resultPerPage);
   const trips = await apiFeature.query;
   res.status(200).json({ success: true, data: trips });
-});
-
-exports.getTripByState = catchAsyncErrors(async (req, res, next) => {
-  const resultPerPage = 5;
-  const { departure, arrival } = req.query;
-  const startOfToday = new Date().setHours(0, 0, 0, 0);
-  const startOfTomorrow = new Date().setHours(24, 0, 0, 0);
-  const apiFeature = new ApiFeatures(
-    Transport.find({
-      date: { $gte: startOfToday, $lt: startOfTomorrow },
-      departureState: departure,
-      arrivalState: arrival,
-      isComplete: false,
-    }).populate("driver", "email firstName lastName"),
-    req.query
-  ).pagination(resultPerPage);
-  const transports = await apiFeature.query;
-  if (transports.length == 0) {
-    return next(new ErrorHandler("Nothing dey again", 400));
-  }
-  res.status(200).json({ success: true, transports });
 });
 
 exports.availableTrip = catchAsyncErrors(async (req, res, next) => {
@@ -104,7 +102,7 @@ exports.availableTrip = catchAsyncErrors(async (req, res, next) => {
 
   const apiFeature = new ApiFeatures(
     Transport.find({
-      date: { $gte: startOfToday, $lt: startOfTomorrow },
+      departureTime: { $gte: startOfToday, $lt: startOfTomorrow },
       isComplete: false,
     }).populate("driver", "email firstName lastName"),
     req.query
@@ -123,7 +121,7 @@ exports.isComplete = catchAsyncErrors(async (req, res, next) => {
   const startOfTomorrow = new Date().setHours(24, 0, 0, 0);
   const transport = await Transport.findOne({
     _id: id,
-    date: { $gte: startOfToday, $lt: startOfTomorrow },
+    departureTime: { $gte: startOfToday, $lt: startOfTomorrow },
   });
   if (transport.isComplete === true) {
     return next(

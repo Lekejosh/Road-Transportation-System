@@ -6,9 +6,6 @@ const transportSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    date: {
-      type: Date,
-    },
     totalSeat: {
       type: Number,
     },

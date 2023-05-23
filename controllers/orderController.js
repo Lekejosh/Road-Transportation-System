@@ -95,8 +95,10 @@ exports.intializePayment = catchAsyncErrors(async (req, res, next) => {
   const params = JSON.stringify({
     email: req.user.email,
     amount: order.totalPrice * 100,
+    currency: "NGN",
     reference: referenceId,
-    callback_url: `http://localhost:4000/api/v1/order/payment/success?orderId=${order._id}&reference=${referenceId}`,
+    callback_url: `http://localhost:4000/api/v1/order/payment/verify?orderId=${order._id}`,
+    channels: ["card", "bank", "ussd", "qr", "mobile_money", "bank_transfer"],
   });
 
   const options = {
@@ -130,9 +132,38 @@ exports.intializePayment = catchAsyncErrors(async (req, res, next) => {
   requests.end();
 });
 
+exports.paymentVerification = catchAsyncErrors(async (req, res, next) => {
+  const { trxref } = req.query;
+  const options = {
+    hostname: "api.paystack.co",
+    port: 443,
+    path: "/transaction/verify/" + trxref,
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+    },
+  };
+
+  https
+    .request(options, (response) => {
+      let data = "";
+
+      response.on("data", (chunk) => {
+        data += chunk;
+      });
+
+      response.on("end", () => {
+        res.status(200).json(JSON.parse(data));
+      });
+    })
+    .on("error", (error) => {
+      console.error(error);
+    });
+});
+
 exports.paymentSuccessCallback = catchAsyncErrors(async (req, res, next) => {
-  const { orderId, reference } = req.query;
-  if (!orderId || !reference)
+  const { orderId, trxref } = req.query;
+  if (!orderId || !trxref)
     return next(new ErrorHandler("Order Id or Refrence Id not provided", 400));
 
   const order = await Order.findById(orderId);
@@ -143,7 +174,7 @@ exports.paymentSuccessCallback = catchAsyncErrors(async (req, res, next) => {
   let item = order.orderItem;
 
   order.paymentInfo.status = "success";
-  order.paymentInfo.id = reference[0].toString();
+  order.paymentInfo.id = trxref;
   order.seatNo = seatNo;
   await order.save();
   await updateSeat(order.transport, item.quantity);
