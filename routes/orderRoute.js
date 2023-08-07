@@ -9,6 +9,7 @@ const {
   intializePayment,
   paymentSuccessCallback,
   paymentVerification,
+  createPdf,
 } = require("../controllers/orderController");
 
 const {
@@ -26,7 +27,8 @@ router.route("/remove").delete(isAuthenticatedUser, checkVerified, deleteTrip);
 router
   .route("/initialize/:orderId")
   .get(isAuthenticatedUser, checkVerified, intializePayment);
-router.route("/payment/success").get(paymentSuccessCallback);
+// router.route("/payment/success").get(paymentSuccessCallback);
 router.route("/payment/verify").get(paymentVerification);
+router.route("/create/pdf").get(isAuthenticatedUser, checkVerified, createPdf);
 
 module.exports = router;

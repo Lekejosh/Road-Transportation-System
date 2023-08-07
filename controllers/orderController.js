@@ -7,6 +7,8 @@ const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const { v4: uuidv4 } = require("uuid");
 const https = require("https");
+const axios = require("axios");
+const receipt = require("../documents");
 
 //TODO: Create a service worker that sends mail to users of a paid transport 30mins before the start of trip
 
@@ -97,7 +99,7 @@ exports.intializePayment = catchAsyncErrors(async (req, res, next) => {
     amount: order.totalPrice * 100,
     currency: "NGN",
     reference: referenceId,
-    callback_url: `http://localhost:4000/api/v1/order/payment/verify?orderId=${order._id}`,
+    callback_url: `http://localhost:8100/payment?orderId=${order._id}`,
     channels: ["card", "bank", "ussd", "qr", "mobile_money", "bank_transfer"],
   });
 
@@ -133,60 +135,51 @@ exports.intializePayment = catchAsyncErrors(async (req, res, next) => {
 });
 
 exports.paymentVerification = catchAsyncErrors(async (req, res, next) => {
-  const { trxref } = req.query;
-  const options = {
-    hostname: "api.paystack.co",
-    port: 443,
-    path: "/transaction/verify/" + trxref,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-    },
-  };
-
-  https
-    .request(options, (response) => {
-      let data = "";
-
-      response.on("data", (chunk) => {
-        data += chunk;
-      });
-
-      response.on("end", () => {
-        res.status(200).json(JSON.parse(data));
-      });
-    })
-    .on("error", (error) => {
-      console.error(error);
-    });
-});
-
-exports.paymentSuccessCallback = catchAsyncErrors(async (req, res, next) => {
   const { orderId, trxref } = req.query;
   if (!orderId || !trxref)
     return next(new ErrorHandler("Order Id or Refrence Id not provided", 400));
+  const headers = {
+    Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+  };
+  await axios
+    .get(`https://api.paystack.co/transaction/verify/${trxref}`, { headers })
+    .then(async (response) => {
+      if (response.data.data.status === "success") {
+        const order = await Order.findById(orderId);
+        if (!order) return next(new ErrorHandler("Order not found", 404));
+        const transport = await Transport.findById(order.transport);
+        const seatNo = transport.bookedSeat - transport.totalSeat + 1;
 
-  const order = await Order.findById(orderId);
-  if (!order) return next(new ErrorHandler("Order not found", 404));
-  const transport = await Transport.findById(order.transport);
-  const seatNo = transport.bookedSeat - transport.totalSeat + 1;
+        let item = order.orderItem;
 
-  let item = order.orderItem;
+        order.paymentInfo.status = "success";
+        order.paymentInfo.id = trxref;
+        order.seatNo = seatNo;
+        order.paidAt = Date.now();
+        await order.save();
+        await updateSeat(order.transport, item.quantity);
 
-  order.paymentInfo.status = "success";
-  order.paymentInfo.id = trxref;
-  order.seatNo = seatNo;
-  await order.save();
-  await updateSeat(order.transport, item.quantity);
-
-  res.status(200).json({ success: true, order });
+        return res.status(200).json({ success: true, order });
+      } else {
+        return res
+          .status(200)
+          .json({ success: false, message: "Unable to process payment" });
+      }
+    })
+    .catch((err) => {
+      return next(new ErrorHandler("Server Error"));
+    });
 });
 
+// exports.paymentSuccessCallback = catchAsyncErrors(async (req, res, next) => {
+
+// });
+
 exports.getSingleOrder = catchAsyncErrors(async (req, res, next) => {
-  const order = await Order.findById(req.params.id).populate(
-    "user",
-    "email firstName lastName"
-  );
+  const order = await Order.findById(req.params.id)
+    .populate("user", "email firstName lastName")
+    .populate("transport")
+    .populate("transport.driver");
   if (!order) {
     return next(new ErrorHandler("No Order found with this ID", 404));
   }
@@ -199,7 +192,9 @@ exports.getSingleOrder = catchAsyncErrors(async (req, res, next) => {
 exports.getAllOrders = catchAsyncErrors(async (req, res, next) => {
   const resultPerPage = 5;
   const apiFeature = new ApiFeatures(
-    Order.find({ user: req.user._id }),
+    Order.find({ user: req.user._id })
+      .populate("transport")
+      .sort({ createdAt: -1 }),
     req.query
   ).pagination(resultPerPage);
   const orders = await apiFeature.query;
@@ -247,3 +242,48 @@ async function addSeat(id, quantity) {
   const transport = await Transport.findById(id);
   transport.totalSeat += quantity;
 }
+
+const PDFDocument = require("pdfkit");
+const generatePdfContent = require("../documents");
+
+exports.createPdf = catchAsyncErrors(async (req, res, next) => {
+  const { orderId } = req.query;
+  if (!orderId) {
+    return next(new ErrorHandler("Order Id not specified", 422));
+  }
+  const order = await Order.findById(orderId).populate(
+    "user",
+    "email firstName lastName"
+  );
+
+  if (order.paymentInfo.status !== "success") {
+    return next(
+      new ErrorHandler("This order is not valid or has not been paid for", 401)
+    );
+  }
+
+  const data = {
+    orderId: order._id,
+    paymentId: order.paymentInfo.id,
+    amount: order.itemsPrice,
+    taxAmount: order.taxPrice,
+    totalAmount: order.totalPrice,
+    seatNo: order.seatNo,
+    departureState: order.departureState,
+    arrivalState: order.arrivalState,
+    departureTime: order.departureTime,
+  };
+
+  try {
+    const doc = generatePdfContent(data); // Generate the PDF content
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${orderId}.pdf"`
+    );
+
+    doc.pipe(res);
+  } catch (err) {
+    return next(new ErrorHandler("Failed to generate the PDF."));
+  }
+});

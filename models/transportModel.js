@@ -44,6 +44,11 @@ const transportSchema = new mongoose.Schema(
       type: Boolean,
       default: "false",
     },
+    status: {
+      type: String,
+      default: "not started",
+      enum: ["canceled", "completed", "ongoing", "not started"],
+    },
     departed: {
       type: Boolean,
       default: "false",

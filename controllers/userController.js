@@ -28,6 +28,12 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
     nextOfKin,
     nextOfKinPhoneNumber,
   } = req.body;
+
+  const existingUser = await User.findOne({ email: email });
+  if (existingUser) {
+    return next(new ErrorHandler("User with this email already exist", 409));
+  }
+
   const user = await User.create({
     firstName,
     lastName,
@@ -82,9 +88,8 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
 });
 
 exports.newEmail = catchAsyncErrors(async (req, res, next) => {
-
   const user = await User.findById(req.user._id);
-  
+
   if (!user) {
     return next(new ErrorHandler("User not found", 404));
   }
@@ -147,7 +152,7 @@ exports.verifyEmail = catchAsyncErrors(async (req, res, next) => {
 exports.resendOtp = catchAsyncErrors(async (req, res, next) => {
   const user = await User.findById(req.user.id);
   if (!user) {
-    return next(new ErrorHandler("User Not found", 400));
+    return next(new ErrorHandler("User Not found", 404));
   }
   if (user.isVerified) {
     return next(new ErrorHandler("Email Address already Verified", 400));

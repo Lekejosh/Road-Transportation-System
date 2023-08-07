@@ -27,7 +27,7 @@ async function checkTrips() {
       trans._id.equals(trip.transport)
     );
     const minutesLeft = Math.floor((transport.departureTime - now) / 1000 / 60);
-    let originalDepartureTime = transport.departureTime;
+    let originalDepartureTime = new Date(transport.departureTime);
     originalDepartureTime.setHours(originalDepartureTime.getHours());
     let realDateAndTimeInGMT = originalDepartureTime.toGMTString();
     await sendEmail({
@@ -40,4 +40,37 @@ async function checkTrips() {
   }
 }
 
-module.exports = checkTrips;
+async function updateUnBookedTrip() {
+  const now = new Date();
+
+  const transports = await Transport.find({
+    departureTime: { $lt: now },
+    status: "not started",
+    bookedSeat: 0,
+  });
+
+  const updatePromises = transports.map(async (transport) => {
+    transport.status = "canceled";
+    await transport.save();
+  });
+
+  await Promise.all(updatePromises);
+}
+
+async function startRide() {
+  const now = new Date();
+
+  const transports = await Transport.find({
+    departureTime: { $lt: now },
+    status: "not started",
+  });
+
+  const updatePromises = transports.map(async (transport) => {
+    transport.status = "ongoing";
+    await transport.save();
+  });
+
+  await Promise.all(updatePromises);
+}
+
+module.exports = { checkTrips, updateUnBookedTrip, startRide };

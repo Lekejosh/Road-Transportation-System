@@ -4,7 +4,11 @@ const errorMiddleware = require("./middlewares/error");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const bodyParser = require("body-parser");
-const checkTrips = require("./middlewares/serviceWorker");
+const {
+  checkTrips,
+  updateUnBookedTrip,
+  startRide,
+} = require("./middlewares/serviceWorker");
 const cors = require("cors");
 const credentials = require("./middlewares/credentials");
 const corsOptions = require("./config/corsOptions");
@@ -15,11 +19,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
 app.use(credentials);
 app.use(cors(corsOptions));
 
 setInterval(checkTrips, 60 * 1000);
+setInterval(updateUnBookedTrip, 60 * 1000);
+setInterval(startRide, 60 * 1000);
 
 const sessionConfig = {
   secret: "egeGBTCTEcgwrtgc54cg66666666h.b/3/3.b/[g[er2",

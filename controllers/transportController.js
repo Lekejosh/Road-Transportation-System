@@ -5,17 +5,17 @@ const ErrorHandler = require("../utils/errorHandler");
 const sendEmail = require("../utils/sendMail");
 const ApiFeatures = require("../utils/apiFeatures");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
+const { getAllOrders } = require("./orderController");
 
 //TODO: Test the Mail Service worker
 
 exports.createTransport = catchAsyncErrors(async (req, res, next) => {
   const trip = {
     totalSeat: req.body.totalSeat,
-    plateNumber: req.body.plateNumber,
+    plateNumber: req.user.plateNumber,
     vehicleName: req.body.vehicleName,
     departureState: req.body.departureState,
     price: req.body.price,
-    departureState: req.body.departureState,
     arrivalState: req.body.arrivalState,
     departureTime: req.body.date + "T" + req.body.time,
     driver: req.user.id,
@@ -50,12 +50,44 @@ exports.tripUpdate = catchAsyncErrors(async (req, res, next) => {
     new: true,
     runValidators: true,
   });
-  if (!transport) {
-    return next(new ErrorHandler("Trip with That ID does not exist", 400));
+  if (!transport || transport.status === "canceled") {
+    return next(
+      new ErrorHandler(
+        "Trip with That ID does not exist or it has been canceled",
+        400
+      )
+    );
   }
 
-  res.status(200).json({ success: true, transport });
+  res.status(201).json({ success: true, transport });
 });
+
+exports.getTripById = catchAsyncErrors(async (req, res, next) => {
+  const { id } = req.query;
+  if (!id) {
+    return next(new ErrorHandler("Trip Id is required", 422));
+  }
+  const transport = await Transport.findById(id);
+
+  if (!transport || transport.status === "canceled") {
+    return next(
+      new ErrorHandler(
+        "Trip with That Id does not exist or it has been canceled",
+        404
+      )
+    );
+  }
+
+  const orders = await Order.find({ transport: id }).populate(
+    "user",
+    "firstName lastName email mobileNumber originState localGovernment"
+  );
+
+  // const data = [transport, orders];
+
+  res.status(200).json({ success: true, data: { transport, orders } });
+});
+
 exports.searchTrips = catchAsyncErrors(async (req, res, next) => {
   const resultPerPage = 10;
   const { search, date, departure, arrival } = req.query;
@@ -121,7 +153,7 @@ exports.availableTrip = catchAsyncErrors(async (req, res, next) => {
   const apiFeature = new ApiFeatures(
     Transport.find({
       departureTime: { $gte: startOfToday, $lt: startOfTomorrow },
-      isComplete: false,
+      status: "not started",
     }).populate("driver", "email firstName lastName"),
     req.query
   ).pagination(resultPerPage);
@@ -132,6 +164,13 @@ exports.availableTrip = catchAsyncErrors(async (req, res, next) => {
   res.status(200).json({ success: true, transports });
 });
 
+exports.getAllTimeDriversTrips = catchAsyncErrors(async (req, res, next) => {
+  const transports = await Transport.find({ driver: req.user._id }).sort({
+    createdAt: -1,
+  });
+  res.status(200).json({ success: true, data: transports });
+});
+
 exports.isComplete = catchAsyncErrors(async (req, res, next) => {
   const { complete } = req.query;
   const { id } = req.params;
@@ -139,8 +178,13 @@ exports.isComplete = catchAsyncErrors(async (req, res, next) => {
   const startOfTomorrow = new Date().setHours(24, 0, 0, 0);
   const transport = await Transport.findOne({
     _id: id,
-    departureTime: { $gte: startOfToday, $lt: startOfTomorrow },
+    // departureTime: { $gte: startOfToday, $lt: startOfTomorrow },
   });
+
+  if (!transport) {
+    return next(new ErrorHandler("Transport not found", 404));
+  }
+
   if (transport.isComplete === true) {
     return next(
       new ErrorHandler(
@@ -149,10 +193,19 @@ exports.isComplete = catchAsyncErrors(async (req, res, next) => {
       )
     );
   }
+
   await transport.updateOne({
     isComplete: complete,
+    status: "completed",
     arrivalTime: Date.now(),
   });
+
+  const user = await User.findById(req.user.id);
+
+  if (!user) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+
   await User.findByIdAndUpdate(
     req.user.id,
     { $inc: { completedTrips: 1 } },
@@ -165,7 +218,9 @@ exports.isComplete = catchAsyncErrors(async (req, res, next) => {
   );
 
   const message = `Your trip with id ${id} has been completed. Here are the details:\n
-Driver Name: ${driver.firstName} ${driver.lastName}\n
+Driver Name: ${driver ? driver.firstName : "Unknown"} ${
+    driver ? driver.lastName : "Driver"
+  }\n
 Plate Number: ${transport.plateNumber}\n
 Departure State: ${transport.departureState}\n
 Arrival State: ${transport.arrivalState}\n\n
@@ -176,9 +231,12 @@ Did you enjoy your trip? <a href='${req.protocol}://${req.get(
   }'>Click here</a> to provide a review.`;
 
   await Order.updateMany({ transport: id }, { orderStatus: "Completed" });
-  for (let i = 0; i <= orders.length; i++) {
+
+  for (let i = 0; i < orders.length; i++) {
+    const userEmail = orders[i].user ? orders[i].user.email : "Unknown";
+    console.log(userEmail);
     await sendEmail({
-      email: orders[i].user.email,
+      email: userEmail,
       subject: "Trip Completed",
       html: message,
     });
@@ -187,13 +245,17 @@ Did you enjoy your trip? <a href='${req.protocol}://${req.get(
   res.status(200).json({ success: true });
 });
 
+
 exports.deleteTransport = catchAsyncErrors(async (req, res, next) => {
   const transport = await Transport.findById(req.params.id);
-  if (!transport) {
-    return next(new ErrorHandler("Trip Not Found", 404));
+  if (!transport || transport.status === "canceled") {
+    return next(
+      new ErrorHandler("Trip Not Found or it has been canceled already", 404)
+    );
   }
   await Order.deleteMany({ transport: transport._id });
-  await transport.remove();
+  transport.status = "canceled";
+  await transport.save();
 
   res.status(200).json({ success: true });
 });
