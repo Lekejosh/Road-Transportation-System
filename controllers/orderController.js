@@ -148,7 +148,7 @@ exports.paymentVerification = catchAsyncErrors(async (req, res, next) => {
         const order = await Order.findById(orderId);
         if (!order) return next(new ErrorHandler("Order not found", 404));
         const transport = await Transport.findById(order.transport);
-        const seatNo = transport.bookedSeat - transport.totalSeat + 1;
+        const seatNo = transport.totalSeat - transport.availableSeats + 1;
 
         let item = order.orderItem;
 
@@ -232,16 +232,7 @@ exports.getAllDayOrder = catchAsyncErrors(async (req, res, next) => {
   const order = await Order.find({ driver: req.user.id });
 });
 
-async function updateSeat(id, quantity) {
-  const transport = await Transport.findById(id);
-  transport.totalSeat -= quantity;
-  await transport.save({ validateBeforeSave: false });
-}
 
-async function addSeat(id, quantity) {
-  const transport = await Transport.findById(id);
-  transport.totalSeat += quantity;
-}
 
 const PDFDocument = require("pdfkit");
 const generatePdfContent = require("../documents");
@@ -287,3 +278,15 @@ exports.createPdf = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Failed to generate the PDF."));
   }
 });
+
+async function updateSeat(id, quantity) {
+  const transport = await Transport.findById(id);
+  transport.availableSeats -= quantity;
+  transport.bookedSeat += quantity;
+  await transport.save();
+}
+
+async function addSeat(id, quantity) {
+  const transport = await Transport.findById(id);
+  transport.availableSeats += quantity;
+}

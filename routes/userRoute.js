@@ -15,6 +15,7 @@ const {
   userDetails,
   refreshToken,
   newEmail,
+  getDriver,
 } = require("../controllers/userController");
 const upload = require("../utils/multer");
 const { isAuthenticatedUser, checkVerified } = require("../middlewares/auth");
@@ -45,5 +46,7 @@ router.route("/password/forgot").post(forgotPassword);
 router.route("/password/reset/:token").put(resetPassword);
 
 router.route("/refresh").get(refreshToken);
+
+router.route('/get/driver').get(isAuthenticatedUser,checkVerified,getDriver)
 
 module.exports = router;

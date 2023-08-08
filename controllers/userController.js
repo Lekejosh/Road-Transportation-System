@@ -177,7 +177,14 @@ exports.resendOtp = catchAsyncErrors(async (req, res, next) => {
   }
   res.status(200).json({ success: true, message: "Otp sent" });
 });
-
+exports.getDriver = catchAsyncErrors(async (req, res, next) => {
+  const { id } = req.params;
+  const driver = await User.findOne({ _id: id, role: "driver" });
+  if (!driver) {
+    return next(new ErrorHandler(`No Driver with ${id}`, 400));
+  }
+  res.status(200).json({ success: true, driver });
+});
 exports.loginUser = catchAsyncErrors(async (req, res, next) => {
   const cookies = req.cookies;
   const { emailNumb, password } = req.body;

@@ -12,6 +12,7 @@ const { getAllOrders } = require("./orderController");
 exports.createTransport = catchAsyncErrors(async (req, res, next) => {
   const trip = {
     totalSeat: req.body.totalSeat,
+    availableSeats: req.body.totalSeat,
     plateNumber: req.user.plateNumber,
     vehicleName: req.body.vehicleName,
     departureState: req.body.departureState,
@@ -152,14 +153,14 @@ exports.availableTrip = catchAsyncErrors(async (req, res, next) => {
 
   const apiFeature = new ApiFeatures(
     Transport.find({
-      departureTime: { $gte: startOfToday, $lt: startOfTomorrow },
+      departureTime: { $gte: startOfToday },
       status: "not started",
-    }).populate("driver", "email firstName lastName"),
+    }).populate("driver", "email firstName lastName ratings reviews"),
     req.query
   ).pagination(resultPerPage);
   const transports = await apiFeature.query;
   if (transports.length == 0) {
-    return next(new ErrorHandler("Nothing dey again", 400));
+    return next(new ErrorHandler("No trip available today",400));
   }
   res.status(200).json({ success: true, transports });
 });
@@ -224,9 +225,7 @@ Driver Name: ${driver ? driver.firstName : "Unknown"} ${
 Plate Number: ${transport.plateNumber}\n
 Departure State: ${transport.departureState}\n
 Arrival State: ${transport.arrivalState}\n\n
-Did you enjoy your trip? <a href='${req.protocol}://${req.get(
-    "host"
-  )}/api/v1/driver/review?q=${
+Did you enjoy your trip? <a href='//http://localhost:8100/driver/rating/${
     transport.driver
   }'>Click here</a> to provide a review.`;
 
@@ -244,7 +243,6 @@ Did you enjoy your trip? <a href='${req.protocol}://${req.get(
 
   res.status(200).json({ success: true });
 });
-
 
 exports.deleteTransport = catchAsyncErrors(async (req, res, next) => {
   const transport = await Transport.findById(req.params.id);

@@ -31,7 +31,7 @@ router.route("/register").put(
 router
   .route("/all")
   .get(isAuthenticatedUser, checkVerified, authorizeRole("admin"), findDriver);
-router.route("/id").get(isAuthenticatedUser, checkVerified, findOneDriver);
+router.route("/:id").get(isAuthenticatedUser, checkVerified, findOneDriver);
 router
   .route("/review")
   .post(isAuthenticatedUser, checkVerified, createDriverReview)

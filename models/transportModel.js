@@ -13,11 +13,16 @@ const transportSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    availableSeats: {
+      type: Number,
+      default: 0,
+    },
     location: {
       type: String,
     },
     vehicleName: {
       type: String,
+      enum:['business','executive','luxury']
     },
     departureTime: {
       type: Date,
