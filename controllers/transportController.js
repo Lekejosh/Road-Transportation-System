@@ -160,7 +160,7 @@ exports.availableTrip = catchAsyncErrors(async (req, res, next) => {
   ).pagination(resultPerPage);
   const transports = await apiFeature.query;
   if (transports.length == 0) {
-    return next(new ErrorHandler("No trip available today",400));
+    return next(new ErrorHandler("No trip available today", 400));
   }
   res.status(200).json({ success: true, transports });
 });
@@ -225,7 +225,7 @@ Driver Name: ${driver ? driver.firstName : "Unknown"} ${
 Plate Number: ${transport.plateNumber}\n
 Departure State: ${transport.departureState}\n
 Arrival State: ${transport.arrivalState}\n\n
-Did you enjoy your trip? <a href='//http://localhost:8100/driver/rating/${
+Did you enjoy your trip? <a href='http://localhost:8100/driver/rating/${
     transport.driver
   }'>Click here</a> to provide a review.`;
 
