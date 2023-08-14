@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "start:docker": "docker-compose up"
+    "start:docker": "DOCKER=true docker-compose up -d"
   },
   "keywords": [],
   "author": "",

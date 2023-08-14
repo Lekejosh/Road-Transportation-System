@@ -4,7 +4,7 @@ services:
     container_name: db_container
     image: mongo:latest
     restart: always
-    ports: 
+    ports:
       - 2717:27017
     volumes:
       - mongo_db:/data/db
@@ -25,6 +25,8 @@ services:
       REFRESH_TOKEN_SECRET: "${REFRESH_TOKEN_SECRET}"
       PORT: "${PORT_1}"
       DB_URI: "${DB_URI}"
+      DB_URI_1: "${DB_URI_1}"
+      DOCKER: true
       DB_NAME: reservation
       COOKIE_EXPIRE: "${COOKIE_EXPIRE}"
       SMPT_SERVICE: "${SMPT_SERVICE}"
