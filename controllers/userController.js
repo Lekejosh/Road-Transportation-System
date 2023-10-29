@@ -16,6 +16,7 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
     crop: "fill",
     gravity: "center",
   });
+  
 
   const {
     firstName,
@@ -74,7 +75,7 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
   );
 
   user.refreshToken = [newRefreshToken];
-  user.save();
+  await user.save();
   res.cookie("refreshToken", newRefreshToken, {
     httpOnly: true,
     sameSite: "none",
