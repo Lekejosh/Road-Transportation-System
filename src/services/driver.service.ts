@@ -3,6 +3,7 @@ import Driver from "./../models/driver.model";
 import CustomError from "./../utils/custom-error";
 import { Queue } from "bullmq";
 import client from "../database/redis";
+import reviewModel from "../models/review.model";
 
 const queue = new Queue("image-upload", {
     redis: { host: "127.0.0.1", port: 6379 }
@@ -54,11 +55,39 @@ class DriverService {
     }
     async singleDriver(driverId: string) {
         const user = await User.findById(driverId);
-        if (!user) throw new CustomError("User not found");
+        if (!user) throw new CustomError("User not found", 404);
         const driver = await Driver.findOne({ userId: driverId, is_verified_driver: true });
-        if (!driver) throw new CustomError("Driver not found");
+        if (!driver) throw new CustomError("Driver not found", 404);
 
-        return { user, driver  };
+        return { user, driver };
+    }
+    async reviewDriver(data: reviewDriverInput, userId: string, driverId: string) {
+        const user = await client.get(userId);
+        if (!user) throw new CustomError("User not found", 404);
+        const driver = await Driver.findOne({ userId: driverId, is_verified_driver: true });
+        if (!driver) throw new CustomError("Driver not found", 404);
+
+        const reviewData = { user: userId, driverId: driverId, rating: data.rating, comment: data.comment };
+
+        const review = await reviewModel.create(reviewData);
+        const rating = await this.calculateRating(driverId);
+        driver.ratings = rating;
+        await driver.save();
+        return review;
+    }
+    async calculateRating(driverId: string) {
+        const reviews = await reviewModel.find({ driverId: driverId });
+
+        const totalReview = reviews.length;
+        let totalRate: number = 0;
+
+        for (let i = 0; i < reviews.length; i++) {
+            totalRate += reviews[i].rating;
+        }
+
+        const driverRating = totalRate / totalReview;
+
+        return driverRating;
     }
 }
 

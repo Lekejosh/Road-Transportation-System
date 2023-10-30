@@ -53,11 +53,15 @@ class DriverController {
     }
     async getDrivers(req: Request, res: Response) {
         const result = await driverService.getDrivers(req.query);
-        res.status(200).send(response("A Drivers", result));
+        res.status(200).send(response("Driver", result));
     }
     async driver(req: Request, res: Response) {
         const result = await driverService.singleDriver(req.params.id);
-        res.status(200).send(response("Driver data",result))
+        res.status(200).send(response("Driver data", result));
+    }
+    async reviewDriver(req: Request, res: Response) {
+        const result = await driverService.reviewDriver(req.body, req.$user._id, req.params.id);
+        res.status(201).send(response("Review submitted successfully", result));
     }
 }
 

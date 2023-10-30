@@ -34,11 +34,6 @@ export interface IDriver extends mongoose.Document {
         number:string
     };
     ratings: Number;
-    reviews: Array<{
-        user: mongoose.Types.ObjectId;
-        rating: number;
-        comment: string;
-    }>;
     completed_trips: Number;
     is_verified_driver: Boolean;
     createdAt: Date;
@@ -115,23 +110,7 @@ const driverSchema: mongoose.Schema = new mongoose.Schema(
             type: Number,
             default: 0
         },
-        reviews: [
-            {
-                user: {
-                    type: mongoose.Schema.ObjectId,
-                    ref: "user",
-                    required: true
-                },
-                rating: {
-                    type: Number,
-                    required: true
-                },
-                comment: {
-                    type: String,
-                    maxlength: [300, "Length can't be more than 300 characters"]
-                }
-            }
-        ],
+      
         completed_trips: {
             type: Number,
             default: 0

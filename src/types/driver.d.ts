@@ -18,8 +18,9 @@ interface GenerateTokenInput {
     role: string;
 }
 
-interface verifyDriver {
-    verify: string;
+interface reviewDriverInput {
+    rating: Number;
+    comment: String;
 }
 
 interface LogoutInput {

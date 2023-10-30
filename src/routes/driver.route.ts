@@ -22,5 +22,6 @@ router
     )
     .get(auth(ROLE.USER), DriverCtrl.getDrivers);
 router.route("/:id").get(auth(ROLE.USER), DriverCtrl.driver);
+router.route("/:id/review").post(auth(ROLE.USER), DriverCtrl.reviewDriver);
 
 export default router;
