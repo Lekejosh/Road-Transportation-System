@@ -52,8 +52,14 @@ class DriverService {
             }
         };
     }
+    async singleDriver(driverId: string) {
+        const user = await User.findById(driverId);
+        if (!user) throw new CustomError("User not found");
+        const driver = await Driver.findOne({ userId: driverId, is_verified_driver: true });
+        if (!driver) throw new CustomError("Driver not found");
 
-    
+        return { user, driver  };
+    }
 }
 
 export default new DriverService();

@@ -55,6 +55,10 @@ class DriverController {
         const result = await driverService.getDrivers(req.query);
         res.status(200).send(response("A Drivers", result));
     }
+    async driver(req: Request, res: Response) {
+        const result = await driverService.singleDriver(req.params.id);
+        res.status(200).send(response("Driver data",result))
+    }
 }
 
 export default new DriverController();

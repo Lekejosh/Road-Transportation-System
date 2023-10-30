@@ -21,5 +21,6 @@ router
         DriverCtrl.become
     )
     .get(auth(ROLE.USER), DriverCtrl.getDrivers);
+router.route("/:id").get(auth(ROLE.USER), DriverCtrl.driver);
 
 export default router;
