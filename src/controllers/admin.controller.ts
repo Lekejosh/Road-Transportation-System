@@ -28,6 +28,13 @@ class UserController {
         const result = await AdminService.delete(req.params.userId);
         res.status(204).end();
     }
+
+    //Driver
+
+    async verifyDriver(req: Request, res: Response) {
+        const result = await AdminService.verifyDriver(req.params.id);
+        res.status(200).send(response("Driver verified successfully", result));
+    }
 }
 
 export default new UserController();

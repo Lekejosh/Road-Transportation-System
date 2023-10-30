@@ -7,17 +7,19 @@ import upload from "../utils/multer";
 
 const router = Router();
 
-router.post(
-    "/",
-    auth(ROLE.USER),
-    upload.fields([
-        { name: "car_image_front", maxCount: 1 },
-        { name: "car_image_side", maxCount: 1 },
-        { name: "car_image_back", maxCount: 1 },
-        { name: "licence_image_back", maxCount: 1 },
-        { name: "licence_image_front", maxCount: 1 }
-    ]),
-    DriverCtrl.become
-);
+router
+    .route("/")
+    .post(
+        auth(ROLE.USER),
+        upload.fields([
+            { name: "car_image_front", maxCount: 1 },
+            { name: "car_image_side", maxCount: 1 },
+            { name: "car_image_back", maxCount: 1 },
+            { name: "licence_image_back", maxCount: 1 },
+            { name: "licence_image_front", maxCount: 1 }
+        ]),
+        DriverCtrl.become
+    )
+    .get(auth(ROLE.USER), DriverCtrl.getDrivers);
 
 export default router;

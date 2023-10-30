@@ -17,4 +17,8 @@ router.put("/:userId", auth(ROLE.ADMIN), upload.single("image"), AdminCtrl.updat
 
 router.delete("/:userId", auth(ROLE.ADMIN), AdminCtrl.delete);
 
+//Driver
+
+router.route("/driver/:id/verify").post(auth(ROLE.ADMIN), AdminCtrl.verifyDriver);
+
 export default router;

@@ -62,7 +62,6 @@ const uploadToCloudinary = async (data: any, userId: any, type: string) => {
 };
 
 const upload = async (path: string, folder: string) => {
-    console.log("running");
     const timestamp = Date.now();
     const result = await cloudinary.uploader.upload(path, {
         folder: `${APP_NAME}/${folder}`,

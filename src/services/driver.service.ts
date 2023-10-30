@@ -18,6 +18,42 @@ class DriverService {
 
         return driver;
     }
+
+    async getDrivers(pagination: PaginationInput) {
+        const { limit = 5, next } = pagination;
+        let query: any = { is_verified_driver: true };
+
+        const total = await Driver.countDocuments(query);
+
+        if (next) {
+            const [nextId, nextCreatedAt] = next.split("_");
+            query = {
+                ...query,
+                $or: [{ createdAt: { $gt: nextCreatedAt } }, { createdAt: nextCreatedAt, _id: { $gt: nextId } }]
+            };
+        }
+
+        const driver = await Driver.find(query)
+            .populate("userId", "name image email gender")
+            .sort({ createdAt: 1, _id: 1 })
+            .limit(Number(limit) + 1);
+
+        const hasNext = driver.length > limit;
+        if (hasNext) driver.pop();
+
+        const nextCursor = hasNext ? `${driver[driver.length - 1]._id}_${driver[driver.length - 1].createdAt.getTime()}` : null;
+
+        return {
+            driver,
+            pagination: {
+                total,
+                hasNext,
+                next: nextCursor
+            }
+        };
+    }
+
+    
 }
 
 export default new DriverService();

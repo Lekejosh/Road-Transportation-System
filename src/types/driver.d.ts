@@ -18,8 +18,8 @@ interface GenerateTokenInput {
     role: string;
 }
 
-interface RefreshTokenInput {
-    refreshToken: string;
+interface verifyDriver {
+    verify: string;
 }
 
 interface LogoutInput {

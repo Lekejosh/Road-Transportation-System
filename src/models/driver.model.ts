@@ -31,6 +31,7 @@ export interface IDriver extends mongoose.Document {
                 public_id: string;
             };
         };
+        number:string
     };
     ratings: Number;
     reviews: Array<{
@@ -39,6 +40,9 @@ export interface IDriver extends mongoose.Document {
         comment: string;
     }>;
     completed_trips: Number;
+    is_verified_driver: Boolean;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const driverSchema: mongoose.Schema = new mongoose.Schema(
@@ -131,6 +135,11 @@ const driverSchema: mongoose.Schema = new mongoose.Schema(
         completed_trips: {
             type: Number,
             default: 0
+        },
+        is_verified_driver: {
+            type: Boolean,
+            required: true,
+            default: false
         }
     },
     {

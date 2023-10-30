@@ -2,6 +2,7 @@ import User from "./../models/user.model";
 import CustomError from "./../utils/custom-error";
 import { Queue } from "bullmq";
 import client from "../database/redis";
+import driverModel from "../models/driver.model";
 
 const queue = new Queue("image-upload", {
     redis: { host: "127.0.0.1", port: 6379 }
@@ -63,7 +64,7 @@ class AdminService {
         }
 
         if (imagePath) {
-            await queue.add("image-upload", { imagePath, userId,type:"user" });
+            await queue.add("image-upload", { data: imagePath, userId, type: "user" });
         }
 
         await user.updateOne(data);
@@ -80,6 +81,25 @@ class AdminService {
         const userRefreshToken = await client.get(`refresh_token-${userId}`);
         if (userRefreshToken) await client.del(`refresh_token-${userId}`);
         return user;
+    }
+
+    //Driver
+    async verifyDriver(driverId: string) {
+        const user = await User.findById(driverId);
+        if (!user) throw new CustomError("User not found");
+
+        const driver = await driverModel.findOne({ userId: driverId });
+        if (!driver || !driver.car_details.plate_number || !driver.car_details.image.front || !driver.car_details.image.side || !driver.car_details.image.back || !driver.licence.isVerified)
+            throw new CustomError("Driver yet to upload all required documents or Driver's licence is yet to be verified");
+
+        driver.is_verified_driver = true;
+        await driver.save();
+        user.role = "driver";
+        await user.save();
+        await client.del(driverId);
+        await client.setEx(driverId, 83000, JSON.stringify(user));
+
+        return driver;
     }
 }
 
