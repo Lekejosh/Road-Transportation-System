@@ -4,8 +4,13 @@ import CustomError from "./../utils/custom-error";
 import { Queue } from "bullmq";
 import client from "../database/redis";
 import reviewModel from "../models/review.model";
+import { request } from "https";
 
 const queue = new Queue("image-upload", {
+    redis: { host: "127.0.0.1", port: 6379 }
+} as any);
+
+const queue_review = new Queue("review-job", {
     redis: { host: "127.0.0.1", port: 6379 }
 } as any);
 
@@ -67,27 +72,49 @@ class DriverService {
         const driver = await Driver.findOne({ userId: driverId, is_verified_driver: true });
         if (!driver) throw new CustomError("Driver not found", 404);
 
-        const reviewData = { user: userId, driverId: driverId, rating: data.rating, comment: data.comment };
+        const reviewData = { userId: userId, driverId: driverId, rating: data.rating, comment: data.comment };
 
         const review = await reviewModel.create(reviewData);
-        const rating = await this.calculateRating(driverId);
-        driver.ratings = rating;
-        await driver.save();
+
+        await queue_review.add("review-job", { driverId });
+        // const rating = await this.calculateRating(driverId);
+        // driver.ratings = rating;
+        // await driver.save();
         return review;
     }
-    async calculateRating(driverId: string) {
-        const reviews = await reviewModel.find({ driverId: driverId });
+    async retrieveReview(driverId: string, pagination: PaginationInput) {
+        const { limit = 5, next } = pagination;
+        let query: object = { driverId: driverId };
 
-        const totalReview = reviews.length;
-        let totalRate: number = 0;
+        const total = await reviewModel.countDocuments(query);
 
-        for (let i = 0; i < reviews.length; i++) {
-            totalRate += reviews[i].rating;
+        if (next) {
+            const [nextId, nextCreatedAt] = next.split("_");
+            query = {
+                ...query,
+                $or: [{ createdAt: { $gt: nextCreatedAt } }, { createdAt: nextCreatedAt, _id: { $gt: nextId } }]
+            };
         }
 
-        const driverRating = totalRate / totalReview;
+        const review = await reviewModel
+            .find(query)
+            .populate("userId", "name image email gender")
+            .sort({ createdAt: 1, _id: 1 })
+            .limit(Number(limit) + 1);
 
-        return driverRating;
+        const hasNext = review.length > limit;
+        if (hasNext) review.pop();
+
+        const nextCursor = hasNext ? `${review[review.length - 1]._id}_${review[review.length - 1].createdAt.getTime()}` : null;
+
+        return {
+            review,
+            pagination: {
+                total,
+                hasNext,
+                next: nextCursor
+            }
+        };
     }
 }
 

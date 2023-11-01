@@ -63,6 +63,10 @@ class DriverController {
         const result = await driverService.reviewDriver(req.body, req.$user._id, req.params.id);
         res.status(201).send(response("Review submitted successfully", result));
     }
+    async retrieveReview(req:Request,res:Response){
+        const result=await driverService.retrieveReview(req.params.id,req.query);
+        res.status(200).send(response('Reviews',result))
+    }
 }
 
 export default new DriverController();

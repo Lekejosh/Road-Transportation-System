@@ -34,7 +34,7 @@ export interface IDriver extends mongoose.Document {
         number:string
     };
     ratings: Number;
-    completed_trips: Number;
+    completed_trips: number;
     is_verified_driver: Boolean;
     createdAt: Date;
     updatedAt: Date;

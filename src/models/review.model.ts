@@ -5,11 +5,14 @@ export interface IReview extends mongoose.Document {
     driverId: mongoose.Types.ObjectId;
     rating: number;
     comment: string;
+    createdAt: Date;
+
+    updatedAt: Date;
 }
 
 const reviewSchema = new mongoose.Schema(
     {
-        user: { type: mongoose.Types.ObjectId, required: true, ref: "user" },
+        userId: { type: mongoose.Types.ObjectId, required: true, ref: "user" },
         driverId: { type: mongoose.Types.ObjectId, required: true, ref: "user" },
         rating: {
             type: Number,

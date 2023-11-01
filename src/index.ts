@@ -54,8 +54,8 @@ errorMiddleware(app);
 import { PORT, CLOUDINARY } from "./config";
 
 import "./database/index";
-import "./workers/imageWorker";
-// import "./workers/driver.image.worker";
+import "./jobs/image.job";
+import './jobs/reviews.job'
 
 cloudinary.v2.config({
     cloud_name: CLOUDINARY.NAME,
