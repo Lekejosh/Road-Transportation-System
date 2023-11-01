@@ -71,15 +71,17 @@ class DriverService {
         if (!user) throw new CustomError("User not found", 404);
         const driver = await Driver.findOne({ userId: driverId, is_verified_driver: true });
         if (!driver) throw new CustomError("Driver not found", 404);
-
+        let review = await reviewModel.findOne({ userId: userId, driverId: driverId });
+        if (review) {
+            review.comment = data.comment;
+            review.rating = data.rating;
+            await review.save();
+            await queue_review.add("review-job", { driverId });
+            return review;
+        }
         const reviewData = { userId: userId, driverId: driverId, rating: data.rating, comment: data.comment };
-
-        const review = await reviewModel.create(reviewData);
-
+        review = await reviewModel.create(reviewData);
         await queue_review.add("review-job", { driverId });
-        // const rating = await this.calculateRating(driverId);
-        // driver.ratings = rating;
-        // await driver.save();
         return review;
     }
     async retrieveReview(driverId: string, pagination: PaginationInput) {
@@ -115,6 +117,20 @@ class DriverService {
                 next: nextCursor
             }
         };
+    }
+    async retrieveSingleReview(userId: string, driverId: string, reviewId: string) {
+        if (!driverId || !reviewId) throw new CustomError("Required parameter not provided");
+        const review = await reviewModel.findOne({ userId: userId, driverId: driverId, _id: reviewId });
+        if (!review) throw new CustomError("Review not found", 404);
+        return review;
+    }
+    async deleteReview(userId: string, driverId: string, reviewId: string) {
+        if (!driverId || !reviewId) throw new CustomError("Required parameter not provided");
+        const review = await reviewModel.findOne({ userId: userId, driverId: driverId, _id: reviewId });
+        if (!review) throw new CustomError("Review not found", 404);
+        await review.deleteOne();
+        await queue_review.add("review-job", { driverId });
+        return true;
     }
 }
 

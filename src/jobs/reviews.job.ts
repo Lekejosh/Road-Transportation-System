@@ -25,7 +25,9 @@ const processReview = async (driverId: string) => {
     }
 
     const driverRating = totalRate / totalReview;
-    driver.ratings = driverRating;
+
+    driver.ratings = driverRating ? driverRating : 0;
+    driver.reviews = reviews.length ? reviews.length : 0;
     await driver.save();
 };
 

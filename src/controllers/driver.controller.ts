@@ -63,9 +63,17 @@ class DriverController {
         const result = await driverService.reviewDriver(req.body, req.$user._id, req.params.id);
         res.status(201).send(response("Review submitted successfully", result));
     }
-    async retrieveReview(req:Request,res:Response){
-        const result=await driverService.retrieveReview(req.params.id,req.query);
-        res.status(200).send(response('Reviews',result))
+    async retrieveReview(req: Request, res: Response) {
+        const result = await driverService.retrieveReview(req.params.id, req.query);
+        res.status(200).send(response("Reviews", result));
+    }
+    async retrieveSingleReview(req: Request, res: Response) {
+        const result = await driverService.retrieveSingleReview(req.$user._id, req.params.id, req.params.reviewId);
+        res.status(200).send(response("Review", result));
+    }
+    async deleteReview(req: Request, res: Response) {
+        await driverService.deleteReview(req.$user._id, req.params.id, req.params.reviewId);
+        res.status(204).end();
     }
 }
 

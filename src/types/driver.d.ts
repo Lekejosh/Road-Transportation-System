@@ -19,8 +19,8 @@ interface GenerateTokenInput {
 }
 
 interface reviewDriverInput {
-    rating: Number;
-    comment: String;
+    rating: number;
+    comment: string;
 }
 
 interface LogoutInput {

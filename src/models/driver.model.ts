@@ -31,9 +31,10 @@ export interface IDriver extends mongoose.Document {
                 public_id: string;
             };
         };
-        number:string
+        number: string;
     };
     ratings: Number;
+    reviews: Number;
     completed_trips: number;
     is_verified_driver: Boolean;
     createdAt: Date;
@@ -110,7 +111,10 @@ const driverSchema: mongoose.Schema = new mongoose.Schema(
             type: Number,
             default: 0
         },
-      
+        reviews: {
+            type: Number,
+            default: 0
+        },
         completed_trips: {
             type: Number,
             default: 0
