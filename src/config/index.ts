@@ -10,7 +10,8 @@ export const JWT_SECRET = process.env.JWT_SECRET;
 
 export const ROLE = {
     ADMIN: ["admin"],
-    USER: ["user", "admin"]
+    USER: ["user", "admin","driver"],
+    DRIVER: ["driver", "admin"]
 };
 
 export const URL = {

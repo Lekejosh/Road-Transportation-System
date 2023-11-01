@@ -5,23 +5,37 @@ import User from "../models/user.model";
 import { app } from "..";
 
 export const authPayload = {
-    name: "Test Test",
-    email: "test@test.com",
-    password: "Password1$",
+    name: "user user",
+    email: "user@test.com",
+    password: "Password$1",
+    dateOfBirth: "2001/01/01",
     gender: "male",
     termsOfService: true,
-    dateOfBirth: "2000-06-20",
+    address: {
+        state_origin: "Lagos",
+        lga_origin: "Lagos",
+        landmark: "Kano",
+        home_address: "amomeemec",
+        residence_state: "Lagos",
+        residence_lga: "Lagos",
+        postal_code: "101110"
+    },
+    next_of_kin: {
+        name: "user user",
+        phone_number: "78966541223"
+    },
+    mobile_number: "78966541224",
     isVerified: true,
-    role: "admin"
+    role: "user"
 };
 
 export const userDetails = {
-    email: "test@test.com",
-    password: "Password1$"
+    email: "user@test.com",
+    password: "Password$1"
 };
 
-export let refreshToken: string;
-export let accessToken: string;
+export let refreshTokenUser: string;
+export let accessTokenUser: string;
 export let userId: string;
 
 export const testAuth = () => {
@@ -30,23 +44,21 @@ export const testAuth = () => {
             const checkUser = await User.findOne({ email: authPayload.email });
             if (!checkUser) await User.create(authPayload);
             const response = await supertest(app).post("/api/v1/auth/login").send(userDetails);
-
             const setCookieHeader = response.header["set-cookie"];
-
             const refreshTokenMatch = setCookieHeader[0].match(/refreshToken=([^;]+)/);
 
             if (refreshTokenMatch && refreshTokenMatch.length > 1) {
-                refreshToken = refreshTokenMatch[1];
+                refreshTokenUser = refreshTokenMatch[1];
             } else {
                 console.log("RefreshToken not found");
             }
-            accessToken = response.body.data.accessToken;
+            accessTokenUser = response.body.data.accessToken;
             userId = response.body.data.user._id;
         }, 15000);
 
         describe("login user", () => {
             it("should return a 200 status code", () => {
-                expect(accessToken).toBeDefined();
+                expect(accessTokenUser).toBeDefined();
             });
         });
     });

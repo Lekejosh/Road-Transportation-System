@@ -2,7 +2,8 @@ import User from "./../models/user.model";
 import CustomError from "./../utils/custom-error";
 import { Queue } from "bullmq";
 import client from "../database/redis";
-import driverModel from "../models/driver.model";
+import Driver from "../models/driver.model";
+import Review from "../models/review.model";
 
 const queue = new Queue("image-upload", {
     redis: { host: "127.0.0.1", port: 6379 }
@@ -74,13 +75,18 @@ class AdminService {
     }
 
     async delete(userId: string) {
-        const user = await User.findByIdAndDelete({ _id: userId });
+        const user = await User.findById(userId);
         if (!user) throw new CustomError("user does not exist");
+        if (user.role === "driver") {
+            await Driver.deleteOne({ userId: userId });
+            await Review.deleteMany({ driverId: userId });
+        }
         const redisUser = await client.get(userId);
         if (redisUser) await client.del(userId);
         const userRefreshToken = await client.get(`refresh_token-${userId}`);
         if (userRefreshToken) await client.del(`refresh_token-${userId}`);
-        return user;
+        await user.deleteOne();
+        return true;
     }
 
     //Driver
@@ -88,7 +94,7 @@ class AdminService {
         const user = await User.findById(driverId);
         if (!user) throw new CustomError("User not found");
 
-        const driver = await driverModel.findOne({ userId: driverId });
+        const driver = await Driver.findOne({ userId: driverId });
         if (!driver || !driver.car_details.plate_number || !driver.car_details.image.front || !driver.car_details.image.side || !driver.car_details.image.back || !driver.licence.isVerified)
             throw new CustomError("Driver yet to upload all required documents or Driver's licence is yet to be verified");
 
