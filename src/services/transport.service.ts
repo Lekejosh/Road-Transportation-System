@@ -5,7 +5,6 @@ import moment from "moment";
 
 class TransportService {
     async create(data: TransportCreateInput, userId: string) {
-        console.log(userId);
         const driver = await User.findOne({ _id: userId, role: "driver" });
         if (!driver) throw new CustomError("Driver not found", 404);
 
@@ -15,6 +14,8 @@ class TransportService {
         if (amountOfTrip >= 4) {
             throw new CustomError("Driver has exceeded the trip limit for the week", 400);
         }
+
+        if (await this.checkifAnotherzTripAlreadyCreatedOnThatDateByTheSameDriver(data.departureDate, userId)) throw new CustomError("You can't take 2 trips on this date");
 
         const trip = await Transport.create(data);
         return trip;
@@ -35,6 +36,11 @@ class TransportService {
             }
         });
         return dataWithin7Days;
+    }
+    async checkifAnotherzTripAlreadyCreatedOnThatDateByTheSameDriver(date: string, driverId: string) {
+        const trip = await Transport.findOne({ driverId: driverId, departureDate: date });
+
+        return trip;
     }
     async calculateDepartureTime(tripId: string, driverId: string) {
         const trip = await Transport.findOne({ _id: tripId, driverId: driverId });
