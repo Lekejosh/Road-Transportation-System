@@ -18,7 +18,6 @@ class MailService {
         if (!recipient || recipient.length < 1) throw new CustomError("Recipient is required");
         if (!subject) throw new CustomError("Subject is required");
 
-        // Define nodemailer transporter
         const transporter = nodemailer.createTransport({
             host: MAILER.HOST,
             port: MAILER.PORT,
@@ -72,6 +71,29 @@ class MailService {
         const recipient = this.user.email;
 
         return await this.send(subject, content, recipient);
+    }
+    async tripTimeNotification(date: Date, time: Date) {
+     const subject = "Trip Created";
+
+     const dateFormatOptions: any = {
+         weekday: "long",
+         day: "numeric",
+         year: "numeric",
+         month: "long"
+     };
+     const formattedDate = date.toLocaleDateString("en-US", dateFormatOptions);
+
+     const timeFormatOptions: any = {
+         hour: "numeric",
+         minute: "2-digit",
+         hour12: true
+     };
+     const formattedTime = time.toLocaleTimeString("en-US", timeFormatOptions);
+
+     const content = `Your trip has been slated for ${formattedDate} to take off at ${formattedTime}`;
+     const recipient = this.user.email;
+
+     return await this.send(subject, content, recipient);
     }
 }
 

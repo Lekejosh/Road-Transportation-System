@@ -56,6 +56,7 @@ import { PORT, CLOUDINARY } from "./config";
 import "./database/index";
 import "./jobs/image.job";
 import './jobs/reviews.job'
+import './jobs/trip.job'
 
 cloudinary.v2.config({
     cloud_name: CLOUDINARY.NAME,
