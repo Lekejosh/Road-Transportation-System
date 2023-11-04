@@ -7,5 +7,6 @@ const router = Router();
 
 router.route("/").post(auth(ROLE.DRIVER), trannsportController.create);
 router.route("/:id").get(trannsportController.getTrip);
+router.route("/find/search").get(trannsportController.searchTrip);
 
 export default router;

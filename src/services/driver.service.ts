@@ -165,6 +165,15 @@ class DriverService {
             }
         };
     }
+    async deleteTripById(userId: string, tripId: string) {
+        const trip = await Transport.findOne({ _id: tripId, driverId: userId });
+        if (!trip) throw new CustomError("Trip not found", 404);
+        if (trip.passagers.length) {
+            //TODO: implement a refund for users that book the trip and mail them
+        }
+        await trip.deleteOne();
+        return;
+    }
 }
 
 export default new DriverService();

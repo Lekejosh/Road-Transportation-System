@@ -4,15 +4,16 @@ export interface ITransport extends mongoose.Document {
     driverId: mongoose.Types.ObjectId;
     origin: string;
     destination: string;
-    departureDate:Date
+    departureDate: Date;
     departureTime: Date;
     availableSeats: number;
     bookedSeats: number;
-    passengers: Array<{
+    passagers: Array<{
         user: mongoose.Types.ObjectId;
         seatNo: number;
     }>;
     type: "luxury" | "business" | "regular";
+    state: "active" | "running" | "completed";
     createdAt: Date;
     updatedAt: Date;
 }
@@ -61,6 +62,10 @@ const transportSchema = new mongoose.Schema(
         type: {
             type: String,
             enum: ["luxury", "business", "regular"]
+        },
+        state: {
+            type: String,
+            enum: ["active", "running", "completed"]
         }
     },
     {
@@ -68,4 +73,4 @@ const transportSchema = new mongoose.Schema(
     }
 );
 
-export default mongoose.model<ITransport>("transport",transportSchema)
+export default mongoose.model<ITransport>("transport", transportSchema);

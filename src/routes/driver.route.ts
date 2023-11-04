@@ -25,5 +25,6 @@ router.route("/:id").get(auth(ROLE.USER), DriverCtrl.driver);
 router.route("/:id/review").post(auth(ROLE.USER), DriverCtrl.reviewDriver).get(DriverCtrl.retrieveReview);
 router.route("/:id/review/:reviewId").get(auth(ROLE.USER), DriverCtrl.retrieveSingleReview).delete(auth(ROLE.USER), DriverCtrl.deleteReview);
 router.route("/trips/history").get(auth(ROLE.DRIVER), DriverCtrl.getTripHistory);
+router.route("/trip/:id").delete(auth(ROLE.DRIVER), DriverCtrl.deleteTripById);
 
 export default router;

@@ -63,5 +63,26 @@ class TransportService {
         if (!trip) throw new CustomError("trip not found", 404);
         return trip;
     }
+    async searchTrip(data: SearchInput) {
+        const { origin, destination, date } = data;
+        const query: any = {
+            state: { $nin: ["running", "completed"] }
+        };
+
+        if (origin) {
+            query.origin = { $regex: new RegExp(origin, "i").source };
+        }
+
+        if (destination) {
+            query.destination = { $regex: new RegExp(destination, "i").source };
+        }
+
+        if (date) {
+            query.departureDate = date;
+        }
+
+        const trips = await Transport.find(query);
+        return trips;
+    }
 }
 export default new TransportService();
