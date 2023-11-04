@@ -19,6 +19,7 @@ class TransportService {
         if (await this.checkifAnotherzTripAlreadyCreatedOnThatDateByTheSameDriver(data.departureDate, userId)) throw new CustomError("You can't take 2 trips on this date");
 
         const trip = await Transport.create(data);
+        await this.calculateDepartureTime(trip._id, data.departureDate, "default");
         return trip;
     }
     async checkIfDateIsSevenDaysFromPresentDay(departureDate: string) {
@@ -52,6 +53,45 @@ class TransportService {
         const trip = await Transport.findOne({ driverId: driverId, departureDate: date });
         return trip;
     }
-    async calculateDepartureTime(tripId: string, driverId: string) {}
+    async calculateDepartureTime(tripId: string, departureDate: string, type: string) {
+        const mainTrip = await Transport.findById(tripId);
+        if (!mainTrip) throw new CustomError("Trip not found", 404);
+        const date = new Date(departureDate);
+        const setDate = new Date(date);
+        const trip = await Transport.find({
+            origin: mainTrip.origin,
+            destination: mainTrip.destination,
+            departureDate: setDate,
+            _id: { $ne: mainTrip._id }
+        }).sort({ departureTime: 1 });
+
+        if (trip.length === 0) {
+            const departureTime = setDate;
+            departureTime.setHours(8, 0, 0, 0);
+            if (type === "new") mainTrip.departureDate = new Date(departureDate);
+            mainTrip.departureTime = departureTime;
+            await mainTrip.save();
+            return;
+        }
+        const lastTrip = trip[trip.length - 1];
+
+        const eightPM = new Date(departureDate);
+        eightPM.setHours(20, 0, 0, 0);
+
+        if (lastTrip.departureTime >= eightPM) {
+            const date = new Date(departureDate);
+            const setDate = new Date(date);
+            setDate.setDate(setDate.getDate() + 1);
+            const formattedDate = setDate.toISOString().split("T")[0];
+            await this.calculateDepartureTime(tripId, formattedDate, "new");
+            return;
+        }
+        const mainTripDepartureTime = new Date(lastTrip.departureTime);
+        mainTripDepartureTime.setMinutes(mainTripDepartureTime.getMinutes() + 30);
+        mainTrip.departureTime = mainTripDepartureTime;
+        if (type === "new") mainTrip.departureDate = setDate;
+        await mainTrip.save();
+        return;
+    }
 }
 export default new TransportService();
