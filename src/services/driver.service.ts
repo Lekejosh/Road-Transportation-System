@@ -5,6 +5,7 @@ import { Queue } from "bullmq";
 import client from "../database/redis";
 import reviewModel from "../models/review.model";
 import { request } from "https";
+import Transport from "../models/transport.model";
 
 const queue = new Queue("image-upload", {
     redis: { host: "127.0.0.1", port: 6379 }
@@ -131,6 +132,38 @@ class DriverService {
         await review.deleteOne();
         await queue_review.add("review-job", { driverId });
         return true;
+    }
+    async getAllTrip(userId: string, pagination: PaginationInput) {
+        const { limit = 5, next } = pagination;
+        let query: object = { driverId: userId };
+
+        const total = await Transport.countDocuments(query);
+
+        if (next) {
+            const [nextId, nextCreatedAt] = next.split("_");
+            query = {
+                ...query,
+                $or: [{ createdAt: { $gt: nextCreatedAt } }, { createdAt: nextCreatedAt, _id: { $gt: nextId } }]
+            };
+        }
+
+        const trip = await Transport.find(query)
+            .sort({ createdAt: 1, _id: 1 })
+            .limit(Number(limit) + 1);
+
+        const hasNext = trip.length > limit;
+        if (hasNext) trip.pop();
+
+        const nextCursor = hasNext ? `${trip[trip.length - 1]._id}_${trip[trip.length - 1].createdAt.getTime()}` : null;
+
+        return {
+            trip,
+            pagination: {
+                total,
+                hasNext,
+                next: nextCursor
+            }
+        };
     }
 }
 

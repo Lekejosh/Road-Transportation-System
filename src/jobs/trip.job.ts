@@ -64,7 +64,6 @@ const worker = new Worker("trip-job", async (job) => {
 });
 (async () => {
     if (await queue.count()) {
-        console.log(worker);
         await worker.run();
     }
 })();

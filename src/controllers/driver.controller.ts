@@ -75,6 +75,10 @@ class DriverController {
         await driverService.deleteReview(req.$user._id, req.params.id, req.params.reviewId);
         res.status(204).end();
     }
+    async getTripHistory(req: Request, res: Response) {
+        const result = await driverService.getAllTrip(req.$user._id, req.query);
+        res.status(200).send(response("Trips", result));
+    }
 }
 
 export default new DriverController();

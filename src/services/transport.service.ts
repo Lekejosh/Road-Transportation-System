@@ -58,5 +58,10 @@ class TransportService {
         const trip = await Transport.findOne({ driverId: driverId, departureDate: date });
         return trip;
     }
+    async getTrip(tripId: string) {
+        const trip = await Transport.findOne({ _id: tripId });
+        if (!trip) throw new CustomError("trip not found", 404);
+        return trip;
+    }
 }
 export default new TransportService();
