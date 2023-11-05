@@ -3,6 +3,7 @@ import { APP_NAME } from "../config";
 import Transport from "../models/transport.model";
 import MailService from "../services/mail.service";
 import User from "../models/user.model";
+import transportService from "../services/transport.service";
 
 const queue = new Queue("trip-job", {
     redis: { host: "127.0.0.1", port: 6379 }
@@ -31,7 +32,20 @@ const calculateDepartureTime = async (tripId: string, departureDate: string, typ
     if (trip.length === 0) {
         const departureTime = setDate;
         departureTime.setHours(8, 0, 0, 0);
-        if (type === "new") mainTrip.departureDate = new Date(departureDate);
+        if (type === "new") {
+            const trip = await transportService.checkifAnotherzTripAlreadyCreatedOnThatDateByTheSameDriver(departureDate, mainTrip.driverId.toString());
+            if (trip) {
+                console.log("Getting another date");
+                const date = new Date(departureDate);
+                const setDate = new Date(date);
+                setDate.setDate(setDate.getDate() + 1);
+                const formattedDate = setDate.toISOString().split("T")[0];
+                await calculateDepartureTime(tripId, formattedDate, "new");
+                return;
+            }
+            mainTrip.departureDate = new Date(departureDate);
+        }
+
         mainTrip.departureTime = departureTime;
         await mainTrip.save();
         await new MailService(user).tripTimeNotification(new Date(departureDate), departureTime);
@@ -50,10 +64,22 @@ const calculateDepartureTime = async (tripId: string, departureDate: string, typ
         await calculateDepartureTime(tripId, formattedDate, "new");
         return;
     }
+
+    if (type === "new") {
+        const trip = await transportService.checkifAnotherzTripAlreadyCreatedOnThatDateByTheSameDriver(departureDate, mainTrip.driverId.toString());
+        if (trip) {
+            const date = new Date(departureDate);
+            const setDate = new Date(date);
+            setDate.setDate(setDate.getDate() + 1);
+            const formattedDate = setDate.toISOString().split("T")[0];
+            await calculateDepartureTime(tripId, formattedDate, "new");
+            return;
+        }
+        mainTrip.departureDate = setDate;
+    }
     const mainTripDepartureTime = new Date(lastTrip.departureTime);
     mainTripDepartureTime.setMinutes(mainTripDepartureTime.getMinutes() + 30);
     mainTrip.departureTime = mainTripDepartureTime;
-    if (type === "new") mainTrip.departureDate = setDate;
     await mainTrip.save();
     await new MailService(user).tripTimeNotification(new Date(departureDate), mainTripDepartureTime);
     return;
@@ -69,5 +95,5 @@ const worker = new Worker("trip-job", async (job) => {
 })();
 
 worker.on("failed", (job: any, err) => {
-    console.error(`Image upload job failed for job ${job.id}:`, err);
+    console.error(`Trip calculation failed, Id ${job.id}:`, err);
 });

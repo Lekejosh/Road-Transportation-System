@@ -55,7 +55,8 @@ class TransportService {
         return dataWithin7Days;
     }
     async checkifAnotherzTripAlreadyCreatedOnThatDateByTheSameDriver(date: string, driverId: string) {
-        const trip = await Transport.findOne({ driverId: driverId, departureDate: date });
+        const setDate = new Date(date);
+        const trip = await Transport.findOne({ driverId: driverId, departureDate: setDate });
         return trip;
     }
     async getTrip(tripId: string) {
