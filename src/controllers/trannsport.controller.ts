@@ -16,6 +16,10 @@ class TransportController {
         const result = await TransportService.searchTrip(data);
         res.status(200).send(response("trips", result));
     }
+    async getTodaysTrip(req: Request, res: Response) {
+        const result = await TransportService.getTodaysTrip();
+        res.status(200).send(response("Available trips today", result));
+    }
 }
 
 export default new TransportController();

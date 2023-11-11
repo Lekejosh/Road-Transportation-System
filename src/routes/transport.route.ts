@@ -5,7 +5,7 @@ import trannsportController from "../controllers/trannsport.controller";
 
 const router = Router();
 
-router.route("/").post(auth(ROLE.DRIVER), trannsportController.create);
+router.route("/").post(auth(ROLE.DRIVER), trannsportController.create).get(trannsportController.getTodaysTrip);
 router.route("/:id").get(trannsportController.getTrip);
 router.route("/find/search").get(trannsportController.searchTrip);
 

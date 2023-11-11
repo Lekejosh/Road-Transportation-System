@@ -73,27 +73,34 @@ class MailService {
         return await this.send(subject, content, recipient);
     }
     async tripTimeNotification(date: Date, time: Date) {
-     const subject = "Trip Created";
+        const subject = "Trip Created";
 
-     const dateFormatOptions: any = {
-         weekday: "long",
-         day: "numeric",
-         year: "numeric",
-         month: "long"
-     };
-     const formattedDate = date.toLocaleDateString("en-US", dateFormatOptions);
+        const dateFormatOptions: any = {
+            weekday: "long",
+            day: "numeric",
+            year: "numeric",
+            month: "long"
+        };
+        const formattedDate = date.toLocaleDateString("en-US", dateFormatOptions);
 
-     const timeFormatOptions: any = {
-         hour: "numeric",
-         minute: "2-digit",
-         hour12: true
-     };
-     const formattedTime = time.toLocaleTimeString("en-US", timeFormatOptions);
+        const timeFormatOptions: any = {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true
+        };
+        const formattedTime = time.toLocaleTimeString("en-US", timeFormatOptions);
 
-     const content = `Your trip has been slated for ${formattedDate} to take off at ${formattedTime}`;
-     const recipient = this.user.email;
+        const content = `Your trip has been slated for ${formattedDate} to take off at ${formattedTime}`;
+        const recipient = this.user.email;
 
-     return await this.send(subject, content, recipient);
+        return await this.send(subject, content, recipient);
+    }
+    async newOrder(tripId: string, origin: string, destination: string, orderId: string,amount:number) {
+        const subject = "Order Created";
+        const content = `Your order for trip:${tripId}, \nfrom: ${origin}\nto:${destination}\namount:${amount}\nHas been created succesfully click this link to pay https://localhost:3000/pay/order/${orderId}`;
+        const recipient = this.user.email;
+
+        return await this.send(subject, content, recipient);
     }
 }
 

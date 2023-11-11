@@ -13,7 +13,7 @@ export interface ITransport extends mongoose.Document {
         seatNo: number;
     }>;
     type: "luxury" | "business" | "regular";
-    state: "active" | "running" | "completed";
+    state: "not started" | "running" | "completed";
     createdAt: Date;
     updatedAt: Date;
 }
@@ -65,7 +65,8 @@ const transportSchema = new mongoose.Schema(
         },
         state: {
             type: String,
-            enum: ["active", "running", "completed"]
+            enum: ["not started", "running", "completed"],
+            default: "not started"
         }
     },
     {

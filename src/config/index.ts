@@ -7,6 +7,11 @@ export const REDIS_PORT = process.env.REDIS_PORT;
 export const BCRYPT_SALT = process.env.BCRYPT_SALT;
 export const APP_NAME = "transport";
 export const JWT_SECRET = process.env.JWT_SECRET;
+export const DISTANCE = {
+    API: process.env.DISTANCE_API,
+    KEY: process.env.DISTANCE_API_KEY,
+    HOST: process.env.DISTANCE_API_HOST
+};
 
 export const ROLE = {
     ADMIN: ["admin"],

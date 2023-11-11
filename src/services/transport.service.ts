@@ -1,3 +1,4 @@
+import client from "../database/redis";
 import Transport from "../models/transport.model";
 import User from "../models/user.model";
 import CustomError from "../utils/custom-error";
@@ -13,8 +14,14 @@ class TransportService {
         if (!driver) throw new CustomError("Driver not found", 404);
 
         data.driverId = userId;
+        const setDate = new Date(data.departureDate);
+        const today = new Date();
+        today.setHours(1, 0, 0, 0);
+        if (setDate.getTime() === today.getTime()) {
+            throw new CustomError("You can't create a trip today");
+        }
 
-        if (!(await this.checkIfDateIsSevenDaysFromPresentDay(data.departureDate))) throw new CustomError("You can't create that is more than 7 days from now");
+        if (!(await this.checkIfDateIsSevenDaysFromPresentDay(data.departureDate))) throw new CustomError("You can't create that is more than 7 days from now or in the past");
 
         const amountOfTrip = (await this.calculateLast5DepartureDays(userId, data.departureDate)).length;
         if (amountOfTrip >= 4) {
@@ -64,24 +71,28 @@ class TransportService {
         if (!trip) throw new CustomError("trip not found", 404);
         return trip;
     }
+    async getTodaysTrip() {
+        let today = new Date();
+        today.setHours(1, 0, 0, 0);
+        const trip = await Transport.find({ departureDate: today, state: "not started" });
+        // if (!trip.length) throw new CustomError("No trip available today", 200);
+        // await client.set("today_trip", JSON.parse(trip));
+        return trip;
+    }
     async searchTrip(data: SearchInput) {
         const { origin, destination, date } = data;
         const query: any = {
             state: { $nin: ["running", "completed"] }
         };
-
         if (origin) {
             query.origin = { $regex: new RegExp(origin, "i").source };
         }
-
         if (destination) {
             query.destination = { $regex: new RegExp(destination, "i").source };
         }
-
         if (date) {
             query.departureDate = date;
         }
-
         const trips = await Transport.find(query);
         return trips;
     }
