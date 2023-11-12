@@ -20,6 +20,7 @@ class TransportController {
         const result = await TransportService.getTodaysTrip();
         res.status(200).send(response("Available trips today", result));
     }
+   
 }
 
 export default new TransportController();

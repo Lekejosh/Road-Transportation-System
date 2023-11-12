@@ -12,11 +12,13 @@ export interface IPayment {
 const paymentSchema = new mongoose.Schema({
     orderId: {
         type: mongoose.Types.ObjectId,
-        required: true
+        required: true,
+        ref:'order'
     },
     userId: {
         type: mongoose.Types.ObjectId,
-        required: true
+        required: true,
+ref:'user'
     },
     amount: {
         type: Number

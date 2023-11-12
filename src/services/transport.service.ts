@@ -99,5 +99,16 @@ class TransportService {
         const trips = await Transport.find(query);
         return trips;
     }
+    async asignSeatNo(tripId: string) {
+        const trip = await Transport.findById(tripId);
+        if (!trip) throw new CustomError("Trip not found", 404);
+        if (trip.availableSeats === trip.bookedSeats) {
+            // Refund payment
+        }
+        const seatNo = trip.bookedSeats + 1;
+        trip.bookedSeats += 1;
+        trip.save();
+        return seatNo;
+    }
 }
 export default new TransportService();
