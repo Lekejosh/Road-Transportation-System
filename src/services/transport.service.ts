@@ -80,7 +80,7 @@ class TransportService {
         return trip;
     }
     async searchTrip(data: SearchInput) {
-        const { origin, destination, date } = data;
+        const { origin, destination, date, type } = data;
         const query: any = {
             state: { $nin: ["running", "completed"] }
         };
@@ -92,6 +92,9 @@ class TransportService {
         }
         if (date) {
             query.departureDate = date;
+        }
+        if (type) {
+            query.type = type;
         }
         const trips = await Transport.find(query);
         return trips;

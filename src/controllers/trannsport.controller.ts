@@ -12,7 +12,7 @@ class TransportController {
         res.status(200).send(response("Trip found", result));
     }
     async searchTrip(req: Request, res: Response) {
-        const data = { origin: req.query.o as string, destination: req.query.d as string, date: req.query.date as string };
+        const data = { origin: req.query.o as string, destination: req.query.d as string, date: req.query.date as string,type:req.query.type as string };
         const result = await TransportService.searchTrip(data);
         res.status(200).send(response("trips", result));
     }
