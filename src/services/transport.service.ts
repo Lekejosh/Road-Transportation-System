@@ -103,7 +103,7 @@ class TransportService {
         const trip = await Transport.findById(tripId);
         if (!trip) throw new CustomError("Trip not found", 404);
         if (trip.availableSeats === trip.bookedSeats) {
-            // Refund payment
+            return "No available seat";
         }
         const seatNo = trip.bookedSeats + 1;
         trip.bookedSeats += 1;

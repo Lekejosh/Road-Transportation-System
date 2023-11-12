@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 export interface IPayment {
     orderId: mongoose.Types.ObjectId;
     userId: mongoose.Types.ObjectId;
-    status: "paid" | "failed" | "pending";
+    status: "paid" | "failed" | "pending" |"refund";
     type: "card" | "bank transfer";
     refrenceId: string;
     amount: number;
@@ -25,7 +25,7 @@ ref:'user'
     },
     status: {
         type: String,
-        enum: ["paid", "failed", "pending"],
+        enum: ["paid", "failed", "pending","refund"],
         default: "pending"
     },
     type: {

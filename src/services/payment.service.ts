@@ -42,9 +42,6 @@ class PaymentService {
     async paymentWebhook(refrence: string) {
         const details = await Payment.findOne({ refrenceId: refrence });
         if (!details) throw new CustomError("Payment Details not found", 500);
-        const paymentVerification = await this.verifyPayment(refrence);
-        details.status = paymentVerification.gateway_response === "Successful" ? "paid" : "pending";
-        details.type = paymentVerification.channel === "card" ? "card" : "bank transfer";
 
         const order = await Order.findById(details.orderId);
         if (!order) throw new CustomError("Order not found", 404);
@@ -52,6 +49,19 @@ class PaymentService {
         const trip = await Transport.findById(order.tripId);
         if (!trip) throw new CustomError("Trip not found");
         const seatNo = await transportService.asignSeatNo(order.tripId.toString());
+        const paymentVerification = await this.verifyPayment(refrence);
+        if (seatNo === "No available seat") {
+            // send mail to admin about no seats left for the trip
+            // notify customer that there are no seats left for his trip
+            await this.refund(refrence, "unavailable seat");
+            details.status = "refund";
+            details.type = paymentVerification.channel === "card" ? "card" : "bank transfer";
+            await details.save();
+            throw new CustomError("No seat available, your money will refunded shortly");
+        }
+
+        details.status = paymentVerification.gateway_response === "Successful" ? "paid" : "pending";
+        details.type = paymentVerification.channel === "card" ? "card" : "bank transfer";
         trip.passagers.push({ user: order.userId, seatNo: seatNo });
         await details.save();
         await order.save();
@@ -84,6 +94,30 @@ class PaymentService {
             throw new CustomError("error verifying payment", 500);
         }
     }
+    async refund(refrence: string, reason: string) {
+        if (!refrence) throw new CustomError("Refrence Not provided");
 
+        const params = JSON.stringify({
+            transaction: refrence,
+            merchant_note: reason
+        });
+
+        const options = {
+            method: "POST",
+            url: `https://api.paystack.co/refund`,
+            headers: {
+                Authorization: `Bearer ${PAYSTACK}`,
+                "Content-Type": "application/json"
+            },
+            data: params
+        };
+
+        try {
+            const response = await axios.request(options);
+            console.log(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+    }
 }
 export default new PaymentService();
