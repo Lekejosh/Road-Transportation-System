@@ -8,6 +8,7 @@ import cookieParser from "cookie-parser";
 import session from "express-session";
 import cloudinary from "cloudinary";
 
+
 export const app = express();
 app.use(
     session({
@@ -55,8 +56,8 @@ import { PORT, CLOUDINARY } from "./config";
 
 import "./database/index";
 import "./jobs/image.job";
-import './jobs/reviews.job'
-import './jobs/trip.job'
+import "./jobs/reviews.job";
+import "./jobs/trip.job";
 
 cloudinary.v2.config({
     cloud_name: CLOUDINARY.NAME,
@@ -68,8 +69,16 @@ cloudinary.v2.config({
 //     console.log(`:::> 🚀 Server ready at https://localhost:${PORT}`);
 // });
 
+import { upcomingTripServer } from "./jobs/transport.job";
+const startSecondServer = () => {
+    const httpServerSecond = http.createServer(upcomingTripServer);
+    httpServerSecond.listen("4001", async () => {
+        console.log(`Transport server is working on http://localhost:4001`);
+    });
+};
 httpServer.listen(PORT, () => {
     console.log(`HTTP Server is working on http://localhost:${PORT}`);
+    startSecondServer();
 });
 
 app.on("error", (error) => {

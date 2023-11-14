@@ -7,6 +7,8 @@ import { PAYSTACK } from "../config";
 import { randomUUID } from "crypto";
 import Transport from "../models/transport.model";
 import transportService from "./transport.service";
+import MailService from "./mail.service";
+import User from "../models/user.model";
 class PaymentService {
     async makePayment(orderId: string, email: string, userId: string, session?: ClientSession) {
         const order = await Order.findById(orderId);
@@ -57,6 +59,9 @@ class PaymentService {
             details.status = "refund";
             details.type = paymentVerification.channel === "card" ? "card" : "bank transfer";
             await details.save();
+            const user = await User.findById(order.userId);
+            if (!user) throw new CustomError("User not found");
+            await new MailService(user).orderCancelled(trip._id.toString(), "unavailable seat space");
             throw new CustomError("No seat available, your money will refunded shortly");
         }
 
@@ -114,7 +119,6 @@ class PaymentService {
 
         try {
             const response = await axios.request(options);
-            console.log(response.data);
         } catch (error) {
             console.error(error);
         }

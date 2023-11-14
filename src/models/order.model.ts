@@ -4,6 +4,7 @@ export interface IOrder extends mongoose.Document {
     userId: mongoose.Types.ObjectId;
     tripId: mongoose.Types.ObjectId;
     paymentId: mongoose.Types.ObjectId;
+    reminded: Boolean;
     amount: number;
 }
 
@@ -24,6 +25,10 @@ const orderSchema = new mongoose.Schema(
         amount: {
             type: Number,
             default: 0
+        },
+        reminded: {
+            type: Boolean,
+            default: false
         }
     },
     {

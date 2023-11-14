@@ -95,11 +95,23 @@ class MailService {
 
         return await this.send(subject, content, recipient);
     }
-    async newOrder(tripId: string, origin: string, destination: string, orderId: string,amount:number) {
+    async newOrder(tripId: string, origin: string, destination: string, orderId: string, amount: number) {
         const subject = "Order Created";
         const content = `Your order for trip:${tripId}, \nfrom: ${origin}\nto:${destination}\namount:${amount}\nHas been created succesfully click this link to pay https://localhost:3000/pay/order/${orderId}`;
         const recipient = this.user.email;
 
+        return await this.send(subject, content, recipient);
+    }
+    async orderCancelled(tripId: string, reason: string) {
+        const subject = `Order cancelled: ${reason}`;
+        const content = `Your Order for trip: ${tripId} has been cancelled because ${reason}, your money is processing for refund\n\nThank you`;
+        const recipient = this.user.email;
+        return await this.send(subject, content, recipient);
+    }
+    async tripReminder(from: string, to: string, timeLeft: number, departureTime: string) {
+        const subject = `Trip starting soon`;
+        const content = `Hello, ${this.user.name}, your trip from ${from} to ${to} will be starting in ${timeLeft} Mins\n\n Departure time ${departureTime}.`;
+        const recipient = this.user.email;
         return await this.send(subject, content, recipient);
     }
 }
