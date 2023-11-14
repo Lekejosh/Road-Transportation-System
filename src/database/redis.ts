@@ -1,18 +1,18 @@
-import { createClient } from "redis";
+import { RedisClientOptions, createClient } from "redis";
 import { REDIS_HOST, REDIS_HOST_DEV } from "../config";
 
 const isDocker = process.env.DOCKER === "true";
 
 const HOST = isDocker ? REDIS_HOST_DEV : REDIS_HOST;
 
-const logStruct = (func: any, error: any) => {
+const logStruct = (func: string, error: string) => {
     return { func, file: "cacheLib", error };
 };
 
 const client = createClient({
     port: 6379,
     host: HOST
-} as any);
+} as RedisClientOptions);
 
 client.on("connect", () => {
     console.log(":::>  Redis Connected");

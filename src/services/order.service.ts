@@ -23,7 +23,7 @@ class OrderService {
             tripId: tripId,
             amount: amount
         });
-        await new MailService(user).newOrder(tripId, trip.origin, trip.destination, order._id,amount);
+        await new MailService(user).newOrder(tripId, trip.origin, trip.destination, order._id, amount);
         return order;
     }
 
@@ -34,15 +34,13 @@ class OrderService {
         return false;
     }
     async calculateTripAmount(origin: string, destination: string, type: string) {
-        let rideType: number;
         let distance: number;
         let duration: number;
-        let period: number;
         let fuel: number;
-        rideType = type === "luxury" ? 20000 : type === "business" ? 15000 : 0;
-        let time = new Date();
+        const rideType: number = type === "luxury" ? 20000 : type === "business" ? 15000 : 0;
+        const time = new Date();
 
-        period = time.getHours() >= 0 && time.getHours() < 6 ? 1500 : time.getHours() >= 6 && time.getHours() < 12 ? 1250 : time.getHours() >= 12 && time.getHours() < 17 ? 1000 : 1200;
+        const period: number = time.getHours() >= 0 && time.getHours() < 6 ? 1500 : time.getHours() >= 6 && time.getHours() < 12 ? 1250 : time.getHours() >= 12 && time.getHours() < 17 ? 1000 : 1200;
 
         const options = {
             method: "GET",

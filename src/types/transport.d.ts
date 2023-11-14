@@ -10,5 +10,5 @@ interface SearchInput {
     origin: string;
     destination: string;
     date: string;
-    type:string
+    type: string;
 }

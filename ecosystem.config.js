@@ -4,7 +4,7 @@ module.exports = {
             name: "transport",
             script: "build/index.js",
             exec_mode: "cluster",
-            instances: "max", 
+            instances: "max",
             watch: ".",
             ignore_watch: ["node_modules"]
         }

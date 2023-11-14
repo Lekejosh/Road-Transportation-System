@@ -1,4 +1,4 @@
-import client from "../database/redis";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Transport from "../models/transport.model";
 import User from "../models/user.model";
 import CustomError from "../utils/custom-error";
@@ -72,7 +72,7 @@ class TransportService {
         return trip;
     }
     async getTodaysTrip() {
-        let today = new Date();
+        const today = new Date();
         today.setHours(1, 0, 0, 0);
         const trip = await Transport.find({ departureDate: today, state: "not started" });
         // if (!trip.length) throw new CustomError("No trip available today", 200);

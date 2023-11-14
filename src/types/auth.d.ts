@@ -7,7 +7,7 @@ interface RegisterInput {
     dateOfBirth: Date;
     gender: string;
     termsOfService: boolean;
-    mobile_number:string;
+    mobile_number: string;
 }
 
 interface LoginInput {

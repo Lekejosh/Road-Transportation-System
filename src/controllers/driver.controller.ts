@@ -1,5 +1,4 @@
 import driverService from "../services/driver.service";
-import CustomError from "../utils/custom-error";
 import response from "../utils/response";
 
 import type { Request, Response } from "express";

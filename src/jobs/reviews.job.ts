@@ -1,5 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Driver from "../models/driver.model";
-import User from "../models/user.model";
 import Review from "../models/review.model";
 import { Queue, Worker } from "bullmq";
 

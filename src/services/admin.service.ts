@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import User from "./../models/user.model";
 import CustomError from "./../utils/custom-error";
 import { Queue } from "bullmq";

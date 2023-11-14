@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Queue } from "bullmq";
 const queue = new Queue("image-upload", {
     redis: { host: "localhost", port: 6379 }

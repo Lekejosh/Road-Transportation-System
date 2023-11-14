@@ -4,7 +4,7 @@ export interface IOrder extends mongoose.Document {
     userId: mongoose.Types.ObjectId;
     tripId: mongoose.Types.ObjectId;
     paymentId: mongoose.Types.ObjectId;
-    reminded: Boolean;
+    reminded: boolean;
     amount: number;
 }
 

@@ -1,5 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Queue, Worker } from "bullmq";
-import { APP_NAME } from "../config";
 import Transport from "../models/transport.model";
 import MailService from "../services/mail.service";
 import User from "../models/user.model";

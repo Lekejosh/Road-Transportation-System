@@ -32,7 +32,7 @@ class UserService {
             throw new CustomError("User does not exist");
         }
         if (!imagePath) throw new CustomError("Image not provided");
-        await queue.add("image-upload", { data:imagePath, userId, type: "user" });
+        await queue.add("image-upload", { data: imagePath, userId, type: "user" });
         return true;
     }
 }

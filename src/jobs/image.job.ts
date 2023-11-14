@@ -1,4 +1,4 @@
-// imageUploadWorker.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { v2 as cloudinary } from "cloudinary";
 import User from "../models/user.model";
 import Driver from "../models/driver.model";
@@ -9,7 +9,7 @@ const queue = new Queue("image-upload", {
     redis: { host: "127.0.0.1", port: 6379 }
 } as any);
 
-const uploadToCloudinary = async (data: any, userId: any, type: string) => {
+const uploadToCloudinary = async (data: any, userId: string, type: string) => {
     if (type === "driver") {
         const driver = await Driver.findOne({ userId: userId });
         if (!driver) {

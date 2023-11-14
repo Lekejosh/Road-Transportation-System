@@ -7,7 +7,7 @@ describe("Sequential Test", () => {
     beforeAll(async () => {
         await beforeAdmin();
         await beforeDriver();
-    },30000);
+    }, 30000);
 
     testAuth();
     userTest();

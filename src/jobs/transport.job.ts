@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Transport from "../models/transport.model";
 import MailService from "../services/mail.service";
 import Order from "../models/order.model";
@@ -26,9 +27,9 @@ const checkUpcomingTrips = async () => {
 
         if (transport) {
             const minutesLeft = Math.floor((transport.departureTime.getTime() - now.getTime()) / 1000 / 60);
-            let originalDepartureTime = new Date(transport.departureTime);
+            const originalDepartureTime = new Date(transport.departureTime);
             originalDepartureTime.setHours(originalDepartureTime.getHours());
-            let realDateAndTimeInGMT = originalDepartureTime.toUTCString();
+            const realDateAndTimeInGMT = originalDepartureTime.toUTCString();
 
             const user = await User.findById(trip.userId);
 
@@ -44,7 +45,7 @@ const checkUpcomingTrips = async () => {
     return;
 };
 
-cron.schedule("* * * * *", async () => {
+cron.schedule("*/10 * * * *", async () => {
     await checkUpcomingTrips();
 });
 

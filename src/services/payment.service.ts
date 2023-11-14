@@ -118,7 +118,7 @@ class PaymentService {
         };
 
         try {
-            const response = await axios.request(options);
+            await axios.request(options);
         } catch (error) {
             console.error(error);
         }

@@ -20,7 +20,7 @@ export interface IDriver extends mongoose.Document {
         plate_number: string;
     };
     licence: {
-        isVerified: Boolean;
+        isVerified: boolean;
         image: {
             front: {
                 url: string;
@@ -33,10 +33,10 @@ export interface IDriver extends mongoose.Document {
         };
         number: string;
     };
-    ratings: Number;
-    reviews: Number;
+    ratings: number;
+    reviews: number;
     completed_trips: number;
-    is_verified_driver: Boolean;
+    is_verified_driver: boolean;
     createdAt: Date;
     updatedAt: Date;
 }

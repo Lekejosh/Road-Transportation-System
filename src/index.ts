@@ -1,13 +1,9 @@
 import express from "express";
-import https from "https";
 import http from "http";
-import fs from "fs";
-import path from "path";
 import "express-async-errors";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import cloudinary from "cloudinary";
-
 
 export const app = express();
 app.use(

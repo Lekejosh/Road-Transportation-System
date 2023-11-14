@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import User from "./../models/user.model";
 import Driver from "./../models/driver.model";
 import CustomError from "./../utils/custom-error";
 import { Queue } from "bullmq";
 import client from "../database/redis";
 import reviewModel from "../models/review.model";
-import { request } from "https";
 import Transport from "../models/transport.model";
 
 const queue = new Queue("image-upload", {

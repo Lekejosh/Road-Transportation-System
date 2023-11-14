@@ -7,8 +7,10 @@ const HistorySchema = new mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: "user"
     },
-    type:{
-        type:String,
-        enum:['trip',"order"]
-    },
+    type: {
+        type: String,
+        enum: ["trip", "order"]
+    }
 });
+
+export default mongoose.model<IHistory>("history", HistorySchema);

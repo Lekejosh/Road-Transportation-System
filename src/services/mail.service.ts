@@ -1,8 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import nodemailer, { TransportOptions } from "nodemailer";
-
 import { MAILER, APP_NAME } from "./../config";
 import CustomError from "../utils/custom-error";
-
 import type { IUser } from "./../models/user.model";
 
 class MailService {
